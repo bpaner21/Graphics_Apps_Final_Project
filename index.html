@@ -19,7 +19,6 @@
 
         <script>
             var scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x494949);
             var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
             var renderer = new THREE.WebGLRenderer();
@@ -39,9 +38,9 @@
             OrbitControl.enablePan = false;
             OrbitControl.enableZoom = false;
 
-            var subCubeSize = 2.8
+
             // create a shape
-            var geometry = new THREE.BoxGeometry(subCubeSize, subCubeSize, subCubeSize);
+            var geometry = new THREE.BoxGeometry(2,2,2);
 
             var cubeMaterials =
             [
@@ -56,52 +55,18 @@
 
             // create a material, color, or image texture
             <!-- var material = new THREE.MeshBasicMaterial({color:0xFFFFFF, wireframe:true}); //-->
-            //var material = new THREE.MeshFaceMaterial(cubeMaterials);
-            var cube = new THREE.Mesh(geometry, cubeMaterials);
+            var material = new THREE.MeshFaceMaterial(cubeMaterials);
+            var cube = new THREE.Mesh(geometry, material);
+            cube.rotation.x = Math.PI/8.0;
+            cube.rotation.y = Math.PI/4.0;
+            scene.add(cube);
 
-            //cube.rotation.x = Math.PI/8.0;
-            //cube.rotation.y = Math.PI/4.0;
-            var cubes = [];
-
-            {
-            let j = 0;
-            for (let x = -3; x <= 3; x += 3)
-                {
-                    for (let y = -3; y <= 3; y += 3)
-                        {
-                            for (let z = -3; z <= 3; z += 3)
-                                {
-                                    if (x == 0 && y == 0 && z == 0)
-                                        {
-                                            continue;
-                                        }
-                                    cubes[j] = new THREE.Mesh(geometry, cubeMaterials);
-                                    cubes[j].position.set(x,y,z);
-                                    //console.log("break");
-                                    //console.log("cubes[" + j + "]:" + cubes[j].position);
-                                    var geo = new THREE.EdgesGeometry( cubes[j].geometry );
-                                    var mat = new THREE.LineBasicMaterial( { color: 0x000000, linewidth: 1} );
-                                    var wireframe = new THREE.LineSegments( geo, mat );
-                                    wireframe.renderOrder = 1; // make sure wireframes are rendered 2nd
-                                    cubes[j].add( wireframe );
-                                    scene.add(cubes[j]);
-                                    console.log("cubes[" + j + "].position:");
-                                    console.log(cubes[j].position);
-                                    console.log(" ");
-                                    //console.log(cubes[0].position);
-                                    ++j;
-                                    //console.log(j);
-                                }
-                        }
-                }
-            }
-
-            camera.position.z = 14;
+            camera.position.z = 4;
 
             var ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.8);
             scene.add(ambientLight);
 
-            var directionalLight = new THREE.DirectionalLight(0x999999, 1);
+            var directionalLight = new THREE.DirectionalLight(0x999999, 0.7);
             directionalLight.position.set(1000,1000,1000);
             scene.add(directionalLight);
 
@@ -111,19 +76,15 @@
 
             var updateRotation = function()
             {
-                for (let i = 0; i < cubes.length; ++i)
-                    {
-                        cube = cubes[i];
-                        cube.rotation.x += 0.05;
-                        cube.rotation.y += 0.04;
-                        cube.rotation.z += 0.00;
-                    }
+              cube.rotation.x += 0.05;
+              cube.rotation.y += 0.04;
+              cube.rotation.z += 0.00;
             };
 
             // program logic
             var update = function()
             {
-                updateRotation();
+                updateRotation(); // -->
             };
 
             // draw Scene
