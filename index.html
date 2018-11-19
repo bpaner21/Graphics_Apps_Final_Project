@@ -18,6 +18,8 @@
 
 
         <script>
+            var rotateTrue = true;
+
             var scene = new THREE.Scene();
             scene.background = new THREE.Color(0x494949);
             var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -57,11 +59,12 @@
             // create a material, color, or image texture
             <!-- var material = new THREE.MeshBasicMaterial({color:0xFFFFFF, wireframe:true}); //-->
             //var material = new THREE.MeshFaceMaterial(cubeMaterials);
-            var cube = new THREE.Mesh(geometry, cubeMaterials);
+            var subCube = new THREE.Mesh(geometry, cubeMaterials);
 
             //cube.rotation.x = Math.PI/8.0;
             //cube.rotation.y = Math.PI/4.0;
-            var cubes = [];
+            var cube = new THREE.Object3D();
+            var subCubes = [];
 
             {
             let j = 0;
@@ -75,26 +78,29 @@
                                         {
                                             continue;
                                         }
-                                    cubes[j] = new THREE.Mesh(geometry, cubeMaterials);
-                                    cubes[j].position.set(x,y,z);
+                                    subCubes[j] = new THREE.Mesh(geometry, cubeMaterials);
+                                    subCubes[j].position.set(x,y,z);
                                     //console.log("break");
-                                    //console.log("cubes[" + j + "]:" + cubes[j].position);
-                                    var geo = new THREE.EdgesGeometry( cubes[j].geometry );
+                                    //console.log("subCubes[" + j + "]:" + subCubes[j].position);
+                                    var geo = new THREE.EdgesGeometry( subCubes[j].geometry );
                                     var mat = new THREE.LineBasicMaterial( { color: 0x000000, linewidth: 1} );
                                     var wireframe = new THREE.LineSegments( geo, mat );
                                     wireframe.renderOrder = 1; // make sure wireframes are rendered 2nd
-                                    cubes[j].add( wireframe );
-                                    scene.add(cubes[j]);
-                                    console.log("cubes[" + j + "].position:");
-                                    console.log(cubes[j].position);
+                                    subCubes[j].add( wireframe );
+                                    //scene.add(subCubes[j]);
+                                    cube.add(subCubes[j]);
+                                    console.log("subCubes[" + j + "].position:");
+                                    console.log(subCubes[j].position);
                                     console.log(" ");
-                                    //console.log(cubes[0].position);
+                                    //console.log(subCubes[0].position);
                                     ++j;
                                     //console.log(j);
                                 }
                         }
                 }
             }
+
+            scene.add(cube);
 
             camera.position.z = 14;
 
@@ -111,13 +117,20 @@
 
             var updateRotation = function()
             {
-                for (let i = 0; i < cubes.length; ++i)
-                    {
-                        cube = cubes[i];
-                        cube.rotation.x += 0.05;
-                        cube.rotation.y += 0.04;
-                        cube.rotation.z += 0.00;
-                    }
+
+                //for (let i = 0; i < subCubes.length; ++i)
+                    //{
+                        //cube.rotation.x += 0.05;
+                        //cube.rotation.y += 0.04;
+                        //cube.rotation.z += 0.00;
+                    //}
+
+                if(rotateTrue)
+                {
+                  cube.rotation.x += 0.05;
+                  cube.rotation.y += 0.04;
+                  cube.rotation.z += 0.00;
+                }
             };
 
             // program logic
