@@ -44,6 +44,7 @@
             var subCubeSize = 2.8
             // create a shape
             var geometry = new THREE.BoxGeometry(subCubeSize, subCubeSize, subCubeSize);
+            var initialPosition;
 
             var cubeMaterials =
             [
@@ -105,15 +106,17 @@
             camera.position.z = 14;
 
             var ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.8);
-            scene.add(ambientLight);
+            camera.add(ambientLight);
 
             var directionalLight = new THREE.DirectionalLight(0x999999, 1);
             directionalLight.position.set(1000,1000,1000);
-            scene.add(directionalLight);
+            camera.add(directionalLight);
 
             var spotLight = new THREE.SpotLight(0x999999, 0.7);
             spotLight.position.set(1000,1000,1000);
             //scene.add(spotLight);
+
+            scene.add(camera);
 
             var updateRotation = function()
             {
