@@ -146,7 +146,7 @@
                             subCubes[j].add(wireframe);
                             //scene.add(subCubes[j]);
                             cube.add(subCubes[j]);
-                            initialPosition[j] = subCubes[j].position;
+                            initialPosition[j] = new THREE.Vector3(x, y, z);
                             //console.log("subCubes[" + j + "].position:");
                             //console.log(subCubes[j].position);
                             //console.log(" ");
@@ -287,7 +287,9 @@
                 this.Reset = function () {
                     for (let i = 0; i < subCubes.length; ++i) {
 
-                        subCubes[i].position = initialPosition[i];
+                        subCubes[i].position.x = initialPosition[i].x;
+                        subCubes[i].position.y = initialPosition[i].y;
+                        subCubes[i].position.z = initialPosition[i].z;
                         subCubes[i].rotation.set(0, 0, 0);
                     }
 
