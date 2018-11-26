@@ -11,6 +11,7 @@
     <body>
         <script src="js/three.js"></script>
         <script src="js/three.min.js"></script>
+	   <script src="js/SphereGeometry.js"></script>
 
         <!-- Changed the input configuration for the mouse buttons on OrbitControls.js to enable rotation through the right mouse button instead of the left -->
         <!-- If possible, I'd like to alter this through my own function rather than through altering the source code of one of the libraries, but I don't know how at the moment -->
@@ -19,6 +20,9 @@
 
         <script>
             var rotateTrue = true;
+            //rotateTrue = false;
+            var sphereTrue = true;
+            sphereTrue = false;
 
             var scene = new THREE.Scene();
             scene.background = new THREE.Color(0x494949);
@@ -41,7 +45,7 @@
             OrbitControl.enablePan = false;
             OrbitControl.enableZoom = false;
 
-            var subCubeSize = 2.8
+            var subCubeSize = 2.85;
             // create a shape
             var geometry = new THREE.BoxGeometry(subCubeSize, subCubeSize, subCubeSize);
 
@@ -53,32 +57,88 @@
               new THREE.MeshPhongMaterial({color:0xFFA500, wireframe:false, side: THREE.DoubleSide}), // Bottom - Orange
               new THREE.MeshPhongMaterial({color:0xFFFFFF, wireframe:false, side: THREE.DoubleSide}), // Front - White
               new THREE.MeshPhongMaterial({color:0xFFFF00, wireframe:false, side: THREE.DoubleSide}), // Back - Yellow
-              new THREE.MeshPhongMaterial({color:0x202020, wireframe:false, side: THREE.DoubleSide}) // "Invisible" inner faces
+              //new THREE.MeshPhongMaterial({color:0x202020, wireframe:false, side: THREE.DoubleSide}) // "Invisible" inner faces
             ];
+
+            var setMaterials = function(x,y,z)
+            {
+              let blackMaterial = new THREE.MeshBasicMaterial({color:0x222222, wireframe:false, side: THREE.DoubleSide})
+              let newMaterial =
+              [
+                new THREE.MeshPhongMaterial({color:0x008000, wireframe:false, side: THREE.DoubleSide}), // Right - Green
+                new THREE.MeshPhongMaterial({color:0x0000FF, wireframe:false, side: THREE.DoubleSide}), // Left - Blue
+                new THREE.MeshPhongMaterial({color:0xFF0000, wireframe:false, side: THREE.DoubleSide}), // Top - Red
+                new THREE.MeshPhongMaterial({color:0xFFA500, wireframe:false, side: THREE.DoubleSide}), // Bottom - Orange
+                new THREE.MeshPhongMaterial({color:0xFFFFFF, wireframe:false, side: THREE.DoubleSide}), // Front - White
+                new THREE.MeshPhongMaterial({color:0xFFFF00, wireframe:false, side: THREE.DoubleSide}), // Back - Yellow
+                //new THREE.MeshPhongMaterial({color:0x202020, wireframe:false, side: THREE.DoubleSide}) // "Invisible" inner faces
+              ];
+
+              if (x <= 0)
+              {
+                  newMaterial[0] = blackMaterial;
+              }
+
+              if (x >= 0)
+              {
+                  newMaterial[1] = blackMaterial;
+              }
+
+              if (y <= 0)
+              {
+                  newMaterial[2] = blackMaterial;
+              }
+
+              if (y >= 0)
+              {
+                  newMaterial[3] = blackMaterial;
+              }
+
+              if (z <= 0)
+              {
+                  newMaterial[4] = blackMaterial;
+              }
+
+              if (z >= 0)
+              {
+                  newMaterial[5] = blackMaterial;
+              }
+
+              return newMaterial;
+            }
 
             // create a material, color, or image texture
             <!-- var material = new THREE.MeshBasicMaterial({color:0xFFFFFF, wireframe:true}); //-->
             //var material = new THREE.MeshFaceMaterial(cubeMaterials);
-            var subCube = new THREE.Mesh(geometry, cubeMaterials);
+            //var subCube = new THREE.Mesh(geometry, cubeMaterials);
 
             //cube.rotation.x = Math.PI/8.0;
             //cube.rotation.y = Math.PI/4.0;
+
             var cube = new THREE.Object3D();
             var subCubes = [];
 
             {
             let j = 0;
-            for (let x = -3; x <= 3; x += 3)
+            for (let z = 3; z >= -3; z -= 3)
                 {
-                    for (let y = -3; y <= 3; y += 3)
+                    for (let y = 3; y >= -3; y -= 3)
                         {
-                            for (let z = -3; z <= 3; z += 3)
+                            for (let x = -3; x <= 3; x += 3)
                                 {
                                     if (x == 0 && y == 0 && z == 0)
                                         {
                                             continue;
                                         }
-                                    subCubes[j] = new THREE.Mesh(geometry, cubeMaterials);
+
+                                    let subMaterial = setMaterials(x,y,z);
+                                    subCubes[j] = new THREE.Mesh(geometry, subMaterial);
+
+                                    //subCubes[j] = new THREE.Mesh(geometry, cubeMaterials);
+
+                                    //whiteMaterial = new THREE.MeshPhongMaterial({color:0xFFFFFF, wireframe:true, side: THREE.DoubleSide});
+                                    //if (j == 0 || j == 25) {subCubes[j] = new THREE.Mesh(geometry, whiteMaterial)}
+
                                     subCubes[j].position.set(x,y,z);
                                     //console.log("break");
                                     //console.log("subCubes[" + j + "]:" + subCubes[j].position);
@@ -115,6 +175,16 @@
             spotLight.position.set(1000,1000,1000);
             //scene.add(spotLight);
 
+            if (sphereTrue)
+            {
+		            var sGeometry = new THREE.SphereGeometry(7.6, 25, 25);
+                var sMaterial = new THREE.MeshBasicMaterial({color:0x111111, wireframe:true, side: THREE.DoubleSide})
+                var sphere = new THREE.Mesh(sGeometry, sMaterial);
+                scene.add(sphere);
+            }
+
+
+
             var updateRotation = function()
             {
 
@@ -127,9 +197,20 @@
 
                 if(rotateTrue)
                 {
-                  cube.rotation.x += 0.05;
-                  cube.rotation.y += 0.04;
-                  cube.rotation.z += 0.00;
+                  let rotationX = 0.02;
+                  let rotationY = 0.01;
+                  let rotationZ = 0.00;
+
+                  if(sphereTrue)
+                  {
+                    sphere.rotation.x += rotationX;
+                    sphere.rotation.y += rotationY;
+                    sphere.rotation.z += rotationZ;
+                  }
+
+                  cube.rotation.x += rotationX;
+                  cube.rotation.y += rotationY;
+                  cube.rotation.z += rotationZ;
                 }
             };
 
