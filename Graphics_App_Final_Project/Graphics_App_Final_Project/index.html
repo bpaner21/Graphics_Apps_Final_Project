@@ -24,7 +24,7 @@
 
         <script>
             var rotateTrue = true;
-            rotateTrue = false;
+            //rotateTrue = false;
             var sphereTrue = true;
             sphereTrue = false;
 
@@ -49,7 +49,7 @@
             OrbitControl.enableZoom = false;
             OrbitControl.saveState();
 
-            var subCubeSize = 2;
+            var subCubeSize = 2.85;
             // create a shape
             var geometry = new THREE.BoxGeometry(subCubeSize, subCubeSize, subCubeSize);
 
@@ -57,12 +57,12 @@
 
             var cubeMaterials =
                 [
-                    new THREE.MeshPhongMaterial({ color: 0x008000, wireframe: false, side: THREE.DoubleSide }), // Right - Green
-                    new THREE.MeshPhongMaterial({ color: 0x0000FF, wireframe: false, side: THREE.DoubleSide }), // Left - Blue
-                    new THREE.MeshPhongMaterial({ color: 0xFF0000, wireframe: false, side: THREE.DoubleSide }), // Top - Red
-                    new THREE.MeshPhongMaterial({ color: 0xFFA500, wireframe: false, side: THREE.DoubleSide }), // Bottom - Orange
-                    new THREE.MeshPhongMaterial({ color: 0xFFFFFF, wireframe: false, side: THREE.DoubleSide }), // Front - White
-                    new THREE.MeshPhongMaterial({ color: 0xFFFF00, wireframe: false, side: THREE.DoubleSide }), // Back - Yellow
+                    new THREE.MeshPhongMaterial({ color: 0x008000, wireframe: false }),// , side: THREE.DoubleSide }), // Right - Green
+                    new THREE.MeshPhongMaterial({ color: 0x0000FF, wireframe: false }),// , side: THREE.DoubleSide }), // Left - Blue
+                    new THREE.MeshPhongMaterial({ color: 0xFF0000, wireframe: false }),// , side: THREE.DoubleSide }), // Top - Red
+                    new THREE.MeshPhongMaterial({ color: 0xFFA500, wireframe: false }),// , side: THREE.DoubleSide }), // Bottom - Orange
+                    new THREE.MeshPhongMaterial({ color: 0xFFFFFF, wireframe: false }),// , side: THREE.DoubleSide }), // Front - White
+                    new THREE.MeshPhongMaterial({ color: 0xFFFF00, wireframe: false })// , side: THREE.DoubleSide }), // Back - Yellow
                     //new THREE.MeshPhongMaterial({color:0x202020, wireframe:false, side: THREE.DoubleSide}) // "Invisible" inner faces
                 ];
 
@@ -70,12 +70,12 @@
                 let blackMaterial = new THREE.MeshBasicMaterial({ color: 0x222222, wireframe: false, side: THREE.DoubleSide })
                 let newMaterial =
                     [
-                        new THREE.MeshPhongMaterial({ color: 0x008000, wireframe: false, side: THREE.DoubleSide }), // Right - Green
-                        new THREE.MeshPhongMaterial({ color: 0x0000FF, wireframe: false, side: THREE.DoubleSide }), // Left - Blue
-                        new THREE.MeshPhongMaterial({ color: 0xFF0000, wireframe: false, side: THREE.DoubleSide }), // Top - Red
-                        new THREE.MeshPhongMaterial({ color: 0xFFA500, wireframe: false, side: THREE.DoubleSide }), // Bottom - Orange
-                        new THREE.MeshPhongMaterial({ color: 0xFFFFFF, wireframe: false, side: THREE.DoubleSide }), // Front - White
-                        new THREE.MeshPhongMaterial({ color: 0xFFFF00, wireframe: false, side: THREE.DoubleSide }), // Back - Yellow
+                        new THREE.MeshPhongMaterial({ color: 0x008000, wireframe: false }),// , side: THREE.DoubleSide }), // Right - Green
+                        new THREE.MeshPhongMaterial({ color: 0x0000FF, wireframe: false }),// , side: THREE.DoubleSide }), // Left - Blue
+                        new THREE.MeshPhongMaterial({ color: 0xFF0000, wireframe: false }),// , side: THREE.DoubleSide }), // Top - Red
+                        new THREE.MeshPhongMaterial({ color: 0xFFA500, wireframe: false }),// , side: THREE.DoubleSide }), // Bottom - Orange
+                        new THREE.MeshPhongMaterial({ color: 0xFFFFFF, wireframe: false }),// , side: THREE.DoubleSide }), // Front - White
+                        new THREE.MeshPhongMaterial({ color: 0xFFFF00, wireframe: false })// , side: THREE.DoubleSide }), // Back - Yellow
                         //new THREE.MeshPhongMaterial({color:0x202020, wireframe:false, side: THREE.DoubleSide}) // "Invisible" inner faces
                     ];
 
@@ -106,14 +106,6 @@
                 return newMaterial;
             }
 
-                // create a material, color, or image texture
-                // <!-- var material = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, wireframe: true }); //-->
-            //var material = new THREE.MeshFaceMaterial(cubeMaterials);
-            //var subCube = new THREE.Mesh(geometry, cubeMaterials);
-
-            //cube.rotation.x = Math.PI/8.0;
-            //cube.rotation.y = Math.PI/4.0;
-
             var cube = new THREE.Object3D();
             var subCubes = [];
             var initialPosition = [];
@@ -130,11 +122,6 @@
                             let subMaterial = setMaterials(x, y, z);
                             subCubes[j] = new THREE.Mesh(geometry, subMaterial);
 
-                            //subCubes[j] = new THREE.Mesh(geometry, cubeMaterials);
-
-                            //whiteMaterial = new THREE.MeshPhongMaterial({color:0xFFFFFF, wireframe:true, side: THREE.DoubleSide});
-                            //if (j == 0 || j == 25) {subCubes[j] = new THREE.Mesh(geometry, whiteMaterial)}
-
                             subCubes[j].position.set(x, y, z);
                             
                             //console.log("break");
@@ -146,11 +133,7 @@
                             subCubes[j].add(wireframe);
                             //scene.add(subCubes[j]);
                             cube.add(subCubes[j]);
-                            initialPosition[j] = new THREE.Vector3(x, y, z);
-                            //console.log("subCubes[" + j + "].position:");
-                            //console.log(subCubes[j].position);
-                            //console.log(" ");
-                            //console.log(subCubes[0].position);
+                            initialPosition[j] = new THREE.Vector3 (x, y, z);
                             ++j;
                             //console.log(j);
                         }
@@ -180,11 +163,11 @@
                 scene.add(sphere);
             }
 
-            function rotateAlongX(_x) {
+            function rotateX(_x) {
                 for (let i = 0; i < subCubes.length; ++i) {
                     if (subCubes[i].position.x == _x) {
 
-                            // Corners
+                        // Corners
                         if (subCubes[i].position.equals(new THREE.Vector3(_x, 3, -3))) {
                             subCubes[i].position.set(_x, 3, 3);
                         }
@@ -197,7 +180,8 @@
                         else if (subCubes[i].position.equals(new THREE.Vector3(_x, -3, -3))) {
                             subCubes[i].position.set(_x, 3, -3);
                         }
-                            // Cross
+
+                        // Cross
                         else if (subCubes[i].position.equals(new THREE.Vector3(_x, 3, 0))) {
                             subCubes[i].position.set(_x, 0, 3);
                         }
@@ -211,19 +195,23 @@
                             subCubes[i].position.set(_x, 3, 0);
                         }
 
-                        subCubes[i].rotation.x += (Math.PI / 2);
-                        if (subCubes[i].rotation.x >= THREE.Math.degToRad(360)) {
-                            subCubes[i].rotation.x = 0;
-                        }
+                        subCubes[i].rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), THREE.Math.degToRad(90));
+
+                        /*console.log(i + ": (" +
+                            subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z + "), (" +
+                            THREE.Math.radToDeg(subCubes[i].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.z) + ")");//*/
                     }
                 }
 
-                console.log("Rotate along X-axis");
-                console.log("subCubes[0].position = (" + subCubes[0].position.x + ", " + subCubes[0].position.y + ", " + subCubes[0].position.z + ")");
-                console.log("subCubes[0].rotation = (" + THREE.Math.radToDeg(subCubes[0].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[0].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[0].rotation.z) + ")");
+                if (_x == -3) {
+                    console.log('L');
+                }
+                else { // if (_x == 3) 
+                    console.log('R');
+                }
             }
 
-            function rotateAlongY(_y) {
+            function rotateY(_y) {
                 for (let i = 0; i < subCubes.length; ++i) {
                     if (subCubes[i].position.y == _y) {
 
@@ -240,6 +228,7 @@
                         else if (subCubes[i].position.equals(new THREE.Vector3(-3, _y, 3))) {
                             subCubes[i].position.set(-3, _y, -3);
                         }
+
                         // Cross
                         else if (subCubes[i].position.equals(new THREE.Vector3(0, _y, -3))) {
                             subCubes[i].position.set(3, _y, 0);
@@ -254,35 +243,115 @@
                             subCubes[i].position.set(0, _y, -3);
                         }
 
-                        subCubes[i].rotation.y += (Math.PI / -2);
-                        if (subCubes[i].rotation.y <= THREE.Math.degToRad(-360)) {
-                            subCubes[i].rotation.y = 0;
-                        }
+                        subCubes[i].rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), THREE.Math.degToRad(-90));
+
+                        /*console.log(i + ": (" +
+                            subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z + "), (" +
+                            THREE.Math.radToDeg(subCubes[i].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.z) + ")");//*/
                     }
                 }
 
-                console.log("Rotate Along Y-axis");
-                console.log("subCubes[0].position = (" + subCubes[0].position.x + ", " + subCubes[0].position.y + ", " + subCubes[0].position.z + ")");
-                console.log("subCubes[0].rotation = (" + THREE.Math.radToDeg(subCubes[0].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[0].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[0].rotation.z) + ")");
+                if (_y == -3) {
+                    console.log('D');
+                }
+                else { // if (_y == 3) 
+                    console.log('U');
+                }
             }
 
-            var gui = new dat.GUI();
+            function rotateZ(_z) {
+                for (let i = 0; i < subCubes.length; ++i) {
+                    if (subCubes[i].position.z == _z) {
+
+                        // Corners
+                        if (subCubes[i].position.equals(new THREE.Vector3(-3, 3, _z))) {
+                            subCubes[i].position.set(3, 3, _z);
+                        }
+                        else if (subCubes[i].position.equals(new THREE.Vector3(3, 3, _z))) {
+                            subCubes[i].position.set(3, -3, _z);
+                        }
+                        else if (subCubes[i].position.equals(new THREE.Vector3(3, -3, _z))) {
+                            subCubes[i].position.set(-3, -3, _z);
+                        }
+                        else if (subCubes[i].position.equals(new THREE.Vector3(-3, -3, _z))) {
+                            subCubes[i].position.set(-3, 3, _z);
+                        }
+
+                        // Cross
+                        else if (subCubes[i].position.equals(new THREE.Vector3(0, 3, _z))) {
+                            subCubes[i].position.set(3, 0, _z);
+                        }
+                        else if (subCubes[i].position.equals(new THREE.Vector3(3, 0, _z))) {
+                            subCubes[i].position.set(0, -3, _z);
+                        }
+                        else if (subCubes[i].position.equals(new THREE.Vector3(0, -3, _z))) {
+                            subCubes[i].position.set(-3, 0, _z);
+                        }
+                        else if (subCubes[i].position.equals(new THREE.Vector3(-3, 0, _z))) {
+                            subCubes[i].position.set(0, 3, _z);
+                        }
+
+                        subCubes[i].rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), THREE.Math.degToRad(-90));
+
+                        /*console.log(i + ": (" +
+                            subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z + "), (" +
+                            THREE.Math.radToDeg(subCubes[i].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.z) + ")");//*/
+                    }
+                }
+
+                if (_z == 3) {
+                    console.log('F');
+                }
+                else { // if (_z == -3) 
+                    console.log('B');
+                }
+            }
+
+            var guiRight = new dat.GUI({ width: 100 });
+            var guiLeft = new dat.GUI({ width: 130 });
 
             var rotate = new function () {
                 this.L = function () {
-                    rotateAlongX(-3);
+                    rotateX(-3);
                 };
                 this.R = function () {
-                    rotateAlongX(3);
+                    rotateX(3);
                 }
 
-                this.D = function () {
-                    rotateAlongY(-3);
+                /*this.Li = function () {
+                    rotateX_i(-3);
                 }
+                this.Ri = function () {
+                    rotateX_i(3);
+                }//*/
 
                 this.U = function () {
-                    rotateAlongY(3);
+                    rotateY(3);
                 }
+                this.D = function () {
+                    rotateY(-3);
+                }
+
+                /*this.Ui = function () {
+                    rotateY_i(3);
+                }
+                this.Di = function () {
+                    rotateY_i(-3);
+                }//*/
+
+                this.F = function () {
+                    rotateZ(3);
+                }
+                this.B = function () {
+                    rotateZ(-3);
+                }
+
+                /*this.Fi = function () {
+                    rotateZ_i(3);
+                }
+                this.B = function () {
+                    rotateZ_i(-3);
+                }//*/
 
                 this.Reset = function () {
                     for (let i = 0; i < subCubes.length; ++i) {
@@ -293,29 +362,70 @@
                         subCubes[i].rotation.set(0, 0, 0);
                     }
 
-                    //OrbitControl.reset();
+                    //console.log("Reset Cubes");
+                    //console.log("subCubes[0].position = (" + subCubes[0].position.x + ", " + subCubes[0].position.y + ", " + subCubes[0].position.z + ")");
+                    //console.log("subCubes[0].rotation = (" + THREE.Math.radToDeg(subCubes[0].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[0].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[0].rotation.z) + ")");
+                }
 
-                    console.log("Reset Cubes");
-                    console.log("subCubes[0].position = (" + subCubes[0].position.x + ", " + subCubes[0].position.y + ", " + subCubes[0].position.z + ")");
-                    console.log("subCubes[0].rotation = (" + THREE.Math.radToDeg(subCubes[0].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[0].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[0].rotation.z) + ")");
+                this.Scramble = function () {
+                    for (let i = 0; i < 20; ++i) {
+                        let turn = Math.floor(Math.random() * 6);
+
+                        switch (turn) {
+                            case (0): {
+
+                                rotateX(-3);
+                                break;
+                            }
+                            case (1): {
+                                rotateX(3);
+                                break;
+                            }
+                            case (2): {
+
+                                rotateY (-3);
+                                break;
+                            }
+                            case (3): {
+                                rotateY(3);
+                                break;
+                            }
+                            case (4): {
+
+                                rotateZ(-3);
+                                break;
+                            }
+                            case (5): {
+                                rotateZ(3);
+                                break;
+                            }
+                        }
+                    }
                 }
             }
 
-            gui.add(rotate, 'L');
-            gui.add(rotate, 'R');
-            gui.add(rotate, 'U');
-            gui.add(rotate, 'D');
-            gui.add(rotate, 'Reset');
+            guiLeft.add(rotate, 'L');
+            guiRight.add(rotate, 'R');
+
+            /*guiLeft.add(rotate, 'Li');
+            guiRight.add(rotate, 'Ri');//*/
+
+            guiLeft.add(rotate, 'U');
+            guiRight.add(rotate, 'D');
+
+            /*guiLeft.add(rotate, 'Ui');
+            guiRight.add(rotate, 'Di');//*/
+
+            guiLeft.add(rotate, 'F');
+            guiRight.add(rotate, 'B');
+
+            /*guiLeft.add(rotate, 'Fi');
+            guiRight.add(rotate, 'Bi');//*/
+
+            guiRight.add(rotate, 'Reset');
+            guiLeft.add(rotate, 'Scramble');
 
             var updateRotation = function () {
-
-                //for (let i = 0; i < subCubes.length; ++i)
-                //{
-                //cube.rotation.x += 0.05;
-                //cube.rotation.y += 0.04;
-                //cube.rotation.z += 0.00;
-                //}
-
                 if (rotateTrue) {
                     let rotationX = 0.02;
                     let rotationY = 0.01;
