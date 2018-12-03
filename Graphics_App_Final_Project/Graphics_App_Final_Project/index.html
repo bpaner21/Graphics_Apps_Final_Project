@@ -28,472 +28,730 @@
             var sphereTrue = true;
             sphereTrue = false;
 
-            var scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x494949);
-            var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            // Scene, Camera, Window
+            {
+                var scene = new THREE.Scene();
+                scene.background = new THREE.Color(0x494949);
+                var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                camera.position.z = 14;
 
-            var renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            document.body.appendChild(renderer.domElement);
+                var axes = new THREE.AxesHelper(12);
+                axes.position.set(-6, -6, -6);
+                scene.add(axes);
 
-            window.addEventListener('resize', function () {
-                var width = window.innerWidth;
-                var height = window.innerHeight;
-                renderer.setSize(width, height);
-                camera.aspect = width / height;
-                camera.updateProjectionMatrix();
-            })
+                var renderer = new THREE.WebGLRenderer({ antialias: true });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                document.body.appendChild(renderer.domElement);
 
-            OrbitControl = new THREE.OrbitControls(camera, renderer.domElement);
-            OrbitControl.enablePan = false;
-            OrbitControl.enableZoom = false;
-            OrbitControl.saveState();
-
-            var subCubeSize = 2.85;
-            // create a shape
-            var geometry = new THREE.BoxGeometry(subCubeSize, subCubeSize, subCubeSize);
-
-            var mouse = new THREE.Vector2();
-
-            var cubeMaterials =
-                [
-                    new THREE.MeshPhongMaterial({ color: 0x008000, wireframe: false }),// , side: THREE.DoubleSide }), // Right - Green
-                    new THREE.MeshPhongMaterial({ color: 0x0000FF, wireframe: false }),// , side: THREE.DoubleSide }), // Left - Blue
-                    new THREE.MeshPhongMaterial({ color: 0xFF0000, wireframe: false }),// , side: THREE.DoubleSide }), // Top - Red
-                    new THREE.MeshPhongMaterial({ color: 0xFFA500, wireframe: false }),// , side: THREE.DoubleSide }), // Bottom - Orange
-                    new THREE.MeshPhongMaterial({ color: 0xFFFFFF, wireframe: false }),// , side: THREE.DoubleSide }), // Front - White
-                    new THREE.MeshPhongMaterial({ color: 0xFFFF00, wireframe: false })// , side: THREE.DoubleSide }), // Back - Yellow
-                    //new THREE.MeshPhongMaterial({color:0x202020, wireframe:false, side: THREE.DoubleSide}) // "Invisible" inner faces
-                ];
-
-            var setMaterials = function (x, y, z) {
-                let blackMaterial = new THREE.MeshBasicMaterial({ color: 0x222222, wireframe: false, side: THREE.DoubleSide })
-                let newMaterial =
-                    [
-                        new THREE.MeshPhongMaterial({ color: 0x008000, wireframe: false }),// , side: THREE.DoubleSide }), // Right - Green
-                        new THREE.MeshPhongMaterial({ color: 0x0000FF, wireframe: false }),// , side: THREE.DoubleSide }), // Left - Blue
-                        new THREE.MeshPhongMaterial({ color: 0xFF0000, wireframe: false }),// , side: THREE.DoubleSide }), // Top - Red
-                        new THREE.MeshPhongMaterial({ color: 0xFFA500, wireframe: false }),// , side: THREE.DoubleSide }), // Bottom - Orange
-                        new THREE.MeshPhongMaterial({ color: 0xFFFFFF, wireframe: false }),// , side: THREE.DoubleSide }), // Front - White
-                        new THREE.MeshPhongMaterial({ color: 0xFFFF00, wireframe: false })// , side: THREE.DoubleSide }), // Back - Yellow
-                        //new THREE.MeshPhongMaterial({color:0x202020, wireframe:false, side: THREE.DoubleSide}) // "Invisible" inner faces
-                    ];
-
-                if (x <= 0) {
-                    newMaterial[0] = blackMaterial;
-                }
-
-                if (x >= 0) {
-                    newMaterial[1] = blackMaterial;
-                }
-
-                if (y <= 0) {
-                    newMaterial[2] = blackMaterial;
-                }
-
-                if (y >= 0) {
-                    newMaterial[3] = blackMaterial;
-                }
-
-                if (z <= 0) {
-                    newMaterial[4] = blackMaterial;
-                }
-
-                if (z >= 0) {
-                    newMaterial[5] = blackMaterial;
-                }
-
-                return newMaterial;
+                window.addEventListener('resize', function () {
+                    var width = window.innerWidth;
+                    var height = window.innerHeight;
+                    renderer.setSize(width, height);
+                    camera.aspect = width / height;
+                    camera.updateProjectionMatrix();
+                })
             }
 
-            var cube = new THREE.Object3D();
-            var subCubes = [];
-            var initialPosition = [];
-
+            // Orbit controls
             {
-                let j = 0;
-                for (let z = 3; z >= -3; z -= 3) {
-                    for (let y = 3; y >= -3; y -= 3) {
-                        for (let x = -3; x <= 3; x += 3) {
-                            if (x == 0 && y == 0 && z == 0) {
-                                continue;
+                OrbitControl = new THREE.OrbitControls(camera, renderer.domElement);
+                OrbitControl.enablePan = false;
+                OrbitControl.enableZoom = false;
+                OrbitControl.saveState();
+            }
+
+            // Cube internal borders
+            {
+                var borderGeometryX = new THREE.BoxGeometry(0.1, 8.8, 8.8);
+                var borderGeometryY = new THREE.BoxGeometry(8.8, 0.1, 8.8);
+                var borderGeometryZ = new THREE.BoxGeometry(8.8, 8.8, 0.1);
+                var borderMaterial = new THREE.MeshPhongMaterial({ color: 0x101010 });
+
+                var border1 = new THREE.Mesh(borderGeometryZ, borderMaterial);
+                border1.position.set(0, 0, -1.5);
+                scene.add(border1);
+
+                var border2 = new THREE.Mesh(borderGeometryZ, borderMaterial);
+                border2.position.set(0, 0, 1.5);
+                scene.add(border2);
+
+                var border3 = new THREE.Mesh(borderGeometryY, borderMaterial);
+                border3.position.set(0, -1.5, 0);
+                scene.add(border3);
+
+                var border4 = new THREE.Mesh(borderGeometryY, borderMaterial);
+                border4.position.set(0, 1.5, 0);
+                scene.add(border4);
+
+                var border5 = new THREE.Mesh(borderGeometryX, borderMaterial);
+                border5.position.set(-1.5, 0, 0);
+                scene.add(border5);
+
+                var border6 = new THREE.Mesh(borderGeometryX, borderMaterial);
+                border6.position.set(1.5, 0, 0);
+                scene.add(border6);
+            }
+
+            // Cube setup
+            {
+                var subCubeSize = 2.85;
+                // create a shape
+                var geometry = new THREE.BoxGeometry(subCubeSize, subCubeSize, subCubeSize);
+
+                var setMaterials = function (x, y, z) {
+                    let blackMaterial = new THREE.MeshBasicMaterial({ color: 0x222222, wireframe: false, side: THREE.DoubleSide })
+                    let newMaterial =
+                        [
+                            new THREE.MeshPhongMaterial({ color: 0x008000, wireframe: false }),// , side: THREE.DoubleSide }), // Right - Green
+                            new THREE.MeshPhongMaterial({ color: 0x0000FF, wireframe: false }),// , side: THREE.DoubleSide }), // Left - Blue
+                            new THREE.MeshPhongMaterial({ color: 0xFF0000, wireframe: false }),// , side: THREE.DoubleSide }), // Top - Red
+                            new THREE.MeshPhongMaterial({ color: 0xFFA500, wireframe: false }),// , side: THREE.DoubleSide }), // Bottom - Orange
+                            new THREE.MeshPhongMaterial({ color: 0xFFFFFF, wireframe: false }),// , side: THREE.DoubleSide }), // Front - White
+                            new THREE.MeshPhongMaterial({ color: 0xFFFF00, wireframe: false })// , side: THREE.DoubleSide }), // Back - Yellow
+                            //new THREE.MeshPhongMaterial({color:0x202020, wireframe:false, side: THREE.DoubleSide}) // "Invisible" inner faces
+                        ];
+
+                    if (x <= 0) {
+                        newMaterial[0] = blackMaterial;
+                    }
+
+                    if (x >= 0) {
+                        newMaterial[1] = blackMaterial;
+                    }
+
+                    if (y <= 0) {
+                        newMaterial[2] = blackMaterial;
+                    }
+
+                    if (y >= 0) {
+                        newMaterial[3] = blackMaterial;
+                    }
+
+                    if (z <= 0) {
+                        newMaterial[4] = blackMaterial;
+                    }
+
+                    if (z >= 0) {
+                        newMaterial[5] = blackMaterial;
+                    }
+
+                    return newMaterial;
+                }
+
+                var cube = new THREE.Object3D();
+                var subCubes = [];
+                var initialPosition = [];
+
+                {
+                    let j = 0;
+                    for (let z = 3; z >= -3; z -= 3) {
+                        for (let y = 3; y >= -3; y -= 3) {
+                            for (let x = -3; x <= 3; x += 3) {
+                                if (x == 0 && y == 0 && z == 0) {
+                                    continue;
+                                }
+
+                                let subMaterial = setMaterials(x, y, z);
+                                subCubes[j] = new THREE.Mesh(geometry, subMaterial);
+
+                                subCubes[j].position.set(x, y, z);
+
+                                //console.log("break");
+                                //console.log("subCubes[" + j + "]:" + subCubes[j].position);
+                                var geo = new THREE.EdgesGeometry(subCubes[j].geometry);
+                                var mat = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 1 });
+                                var wireframe = new THREE.LineSegments(geo, mat);
+                                wireframe.renderOrder = 1; // make sure wireframes are rendered 2nd
+                                subCubes[j].add(wireframe);
+                                //scene.add(subCubes[j]);
+                                cube.add(subCubes[j]);
+                                initialPosition[j] = new THREE.Vector3(x, y, z);
+                                ++j;
+                                //console.log(j);
+                            }
+                        }
+                    }
+                }
+
+                scene.add(cube);
+            }
+
+            // Lighting
+            {
+                var ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.8);
+                scene.add(ambientLight);
+
+                var directionalLight = new THREE.DirectionalLight(0x999999, 1);
+                directionalLight.position.set(1000, 1000, 1000);
+                scene.add(directionalLight);
+
+                var spotLight = new THREE.SpotLight(0x999999, 0.7);
+                spotLight.position.set(1000, 1000, 1000);
+                //scene.add(spotLight);
+            }
+
+            // Debug sphere
+            {
+                if (sphereTrue) {
+                    var sGeometry = new THREE.SphereGeometry(7.6, 25, 25);
+                    var sMaterial = new THREE.MeshBasicMaterial({ color: 0x111111, wireframe: true, side: THREE.DoubleSide })
+                    var sphere = new THREE.Mesh(sGeometry, sMaterial);
+                    scene.add(sphere);
+                }
+            }
+
+            // Side rotation functions
+            {
+                function rotateX(_x) {
+                    for (let i = 0; i < subCubes.length; ++i) {
+                        if (subCubes[i].position.x == _x) {
+
+                            // Corners
+                            if (subCubes[i].position.equals(new THREE.Vector3(_x, 3, -3))) {
+                                subCubes[i].position.set(_x, 3, 3);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(_x, 3, 3))) {
+                                subCubes[i].position.set(_x, -3, 3);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(_x, -3, 3))) {
+                                subCubes[i].position.set(_x, -3, -3);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(_x, -3, -3))) {
+                                subCubes[i].position.set(_x, 3, -3);
                             }
 
-                            let subMaterial = setMaterials(x, y, z);
-                            subCubes[j] = new THREE.Mesh(geometry, subMaterial);
+                            // Cross
+                            else if (subCubes[i].position.equals(new THREE.Vector3(_x, 3, 0))) {
+                                subCubes[i].position.set(_x, 0, 3);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(_x, 0, 3))) {
+                                subCubes[i].position.set(_x, -3, 0);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(_x, -3, 0))) {
+                                subCubes[i].position.set(_x, 0, -3);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(_x, 0, -3))) {
+                                subCubes[i].position.set(_x, 3, 0);
+                            }
 
-                            subCubes[j].position.set(x, y, z);
-                            
-                            //console.log("break");
-                            //console.log("subCubes[" + j + "]:" + subCubes[j].position);
-                            var geo = new THREE.EdgesGeometry(subCubes[j].geometry);
-                            var mat = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 1 });
-                            var wireframe = new THREE.LineSegments(geo, mat);
-                            wireframe.renderOrder = 1; // make sure wireframes are rendered 2nd
-                            subCubes[j].add(wireframe);
-                            //scene.add(subCubes[j]);
-                            cube.add(subCubes[j]);
-                            initialPosition[j] = new THREE.Vector3 (x, y, z);
-                            ++j;
-                            //console.log(j);
+                            subCubes[i].rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), THREE.Math.degToRad(90));
+
+                            /*console.log(i + ": (" +
+                                subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z + "), (" +
+                                THREE.Math.radToDeg(subCubes[i].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.z) + ")");//*/
                         }
+                    }
+
+                    if (_x == -3) {
+                        console.log('L');
+                    }
+                    else { // if (_x == 3) 
+                        console.log('R');
+                    }
+                }
+
+                function rotateX_i(_x) {
+                    for (let i = 0; i < subCubes.length; ++i) {
+                        if (subCubes[i].position.x == _x) {
+
+                            // Corners
+                            if (subCubes[i].position.equals(new THREE.Vector3(_x, 3, 3))) {
+                                subCubes[i].position.set(_x, 3, -3);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(_x, -3, 3))) {
+                                subCubes[i].position.set(_x, 3, 3);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(_x, -3, -3))) {
+                                subCubes[i].position.set(_x, -3, 3);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(_x, 3, -3))) {
+                                subCubes[i].position.set(_x, -3, -3);
+                            }
+
+                            // Cross
+                            else if (subCubes[i].position.equals(new THREE.Vector3(_x, 0, 3))) {
+                                subCubes[i].position.set(_x, 3, 0);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(_x, -3, 0))) {
+                                subCubes[i].position.set(_x, 0, 3);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(_x, 0, -3))) {
+                                subCubes[i].position.set(_x, -3, 0);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(_x, 3, 0))) {
+                                subCubes[i].position.set(_x, 0, -3);
+                            }
+
+                            subCubes[i].rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), THREE.Math.degToRad(-90));
+
+                            /*console.log(i + ": (" +
+                                subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z + "), (" +
+                                THREE.Math.radToDeg(subCubes[i].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.z) + ")");//*/
+                        }
+                    }
+
+                    if (_x == -3) {
+                        console.log('L\'');
+                    }
+                    else { // if (_x == 3) 
+                        console.log('R\'');
+                    }
+                }
+
+                function rotateY(_y) {
+                    for (let i = 0; i < subCubes.length; ++i) {
+                        if (subCubes[i].position.y == _y) {
+
+                            // Corners
+                            if (subCubes[i].position.equals(new THREE.Vector3(-3, _y, -3))) {
+                                subCubes[i].position.set(3, _y, -3);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(3, _y, -3))) {
+                                subCubes[i].position.set(3, _y, 3);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(3, _y, 3))) {
+                                subCubes[i].position.set(-3, _y, 3);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(-3, _y, 3))) {
+                                subCubes[i].position.set(-3, _y, -3);
+                            }
+
+                            // Cross
+                            else if (subCubes[i].position.equals(new THREE.Vector3(0, _y, -3))) {
+                                subCubes[i].position.set(3, _y, 0);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(3, _y, 0))) {
+                                subCubes[i].position.set(0, _y, 3);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(0, _y, 3))) {
+                                subCubes[i].position.set(-3, _y, 0);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(-3, _y, 0))) {
+                                subCubes[i].position.set(0, _y, -3);
+                            }
+
+                            subCubes[i].rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), THREE.Math.degToRad(-90));
+
+                            /*console.log(i + ": (" +
+                                subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z + "), (" +
+                                THREE.Math.radToDeg(subCubes[i].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.z) + ")");//*/
+                        }
+                    }
+
+                    if (_y == -3) {
+                        console.log('D\'');
+                    }
+                    else { // if (_y == 3) 
+                        console.log('U\'');
+                    }
+                }
+
+                function rotateY_i(_y) {
+                    for (let i = 0; i < subCubes.length; ++i) {
+                        if (subCubes[i].position.y == _y) {
+
+                            // Corners
+                            if (subCubes[i].position.equals(new THREE.Vector3(3, _y, -3))) {
+                                subCubes[i].position.set(-3, _y, -3);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(3, _y, 3))) {
+                                subCubes[i].position.set(3, _y, -3);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(-3, _y, 3))) {
+                                subCubes[i].position.set(3, _y, 3);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(-3, _y, -3))) {
+                                subCubes[i].position.set(-3, _y, 3);
+                            }
+
+                            // Cross
+                            else if (subCubes[i].position.equals(new THREE.Vector3(3, _y, 0))) {
+                                subCubes[i].position.set(0, _y, -3);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(0, _y, 3))) {
+                                subCubes[i].position.set(3, _y, 0);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(-3, _y, 0))) {
+                                subCubes[i].position.set(0, _y, 3);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(0, _y, -3))) {
+                                subCubes[i].position.set(-3, _y, 0);
+                            }
+
+                            subCubes[i].rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), THREE.Math.degToRad(90));
+
+                            /*console.log(i + ": (" +
+                                subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z + "), (" +
+                                THREE.Math.radToDeg(subCubes[i].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.z) + ")");//*/
+                        }
+                    }
+
+                    if (_y == -3) {
+                        console.log('D');
+                    }
+                    else { // if (_y == 3) 
+                        console.log('U');
+                    }
+                }
+
+                function rotateZ(_z) {
+                    for (let i = 0; i < subCubes.length; ++i) {
+                        if (subCubes[i].position.z == _z) {
+
+                            // Corners
+                            if (subCubes[i].position.equals(new THREE.Vector3(-3, 3, _z))) {
+                                subCubes[i].position.set(3, 3, _z);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(3, 3, _z))) {
+                                subCubes[i].position.set(3, -3, _z);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(3, -3, _z))) {
+                                subCubes[i].position.set(-3, -3, _z);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(-3, -3, _z))) {
+                                subCubes[i].position.set(-3, 3, _z);
+                            }
+
+                            // Cross
+                            else if (subCubes[i].position.equals(new THREE.Vector3(0, 3, _z))) {
+                                subCubes[i].position.set(3, 0, _z);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(3, 0, _z))) {
+                                subCubes[i].position.set(0, -3, _z);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(0, -3, _z))) {
+                                subCubes[i].position.set(-3, 0, _z);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(-3, 0, _z))) {
+                                subCubes[i].position.set(0, 3, _z);
+                            }
+
+                            subCubes[i].rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), THREE.Math.degToRad(-90));
+
+                            /*console.log(i + ": (" +
+                                subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z + "), (" +
+                                THREE.Math.radToDeg(subCubes[i].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.z) + ")");//*/
+                        }
+                    }
+
+                    if (_z == 3) {
+                        console.log('F');
+                    }
+                    else { // if (_z == -3) 
+                        console.log('B');
+                    }
+                }
+
+                function rotateZ_i(_z) {
+                    for (let i = 0; i < subCubes.length; ++i) {
+                        if (subCubes[i].position.z == _z) {
+
+                            // Corners
+                            if (subCubes[i].position.equals(new THREE.Vector3(3, 3, _z))) {
+                                subCubes[i].position.set(-3, 3, _z);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(3, -3, _z))) {
+                                subCubes[i].position.set(3, 3, _z);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(-3, -3, _z))) {
+                                subCubes[i].position.set(3, -3, _z);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(-3, 3, _z))) {
+                                subCubes[i].position.set(-3, -3, _z);
+                            }
+
+                            // Cross
+                            else if (subCubes[i].position.equals(new THREE.Vector3(3, 0, _z))) {
+                                subCubes[i].position.set(0, 3, _z);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(0, -3, _z))) {
+                                subCubes[i].position.set(3, 0, _z);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(-3, 0, _z))) {
+                                subCubes[i].position.set(0, -3, _z);
+                            }
+                            else if (subCubes[i].position.equals(new THREE.Vector3(0, 3, _z))) {
+                                subCubes[i].position.set(-3, 0, _z);
+                            }
+
+                            subCubes[i].rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), THREE.Math.degToRad(90));
+
+                            /*console.log(i + ": (" +
+                                subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z + "), (" +
+                                THREE.Math.radToDeg(subCubes[i].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.z) + ")");//*/
+                        }
+                    }
+
+                    if (_z == 3) {
+                        console.log('F\'');
+                    }
+                    else { // if (_z == -3) 
+                        console.log('B\'');
                     }
                 }
             }
 
-            scene.add(cube);
+            // Whole cube rotation functions
+            {
+                function cubeRotateX() {
+                    for (let i = 0; i < subCubes.length; ++i) {
+                        let sin = Math.sin(THREE.Math.degToRad(90));
+                        let cos = Math.cos(THREE.Math.degToRad(90));
 
-            camera.position.z = 14;
+                        let yNew = Math.round((subCubes[i].position.y * cos) - (subCubes[i].position.z * sin));
+                        let zNew = Math.round((subCubes[i].position.y * sin) + (subCubes[i].position.z * cos));
 
-            var ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.8);
-            scene.add(ambientLight);
-
-            var directionalLight = new THREE.DirectionalLight(0x999999, 1);
-            directionalLight.position.set(1000, 1000, 1000);
-            scene.add(directionalLight);
-
-            var spotLight = new THREE.SpotLight(0x999999, 0.7);
-            spotLight.position.set(1000, 1000, 1000);
-            //scene.add(spotLight);
-
-            if (sphereTrue) {
-                var sGeometry = new THREE.SphereGeometry(7.6, 25, 25);
-                var sMaterial = new THREE.MeshBasicMaterial({ color: 0x111111, wireframe: true, side: THREE.DoubleSide })
-                var sphere = new THREE.Mesh(sGeometry, sMaterial);
-                scene.add(sphere);
-            }
-
-            function rotateX(_x) {
-                for (let i = 0; i < subCubes.length; ++i) {
-                    if (subCubes[i].position.x == _x) {
-
-                        // Corners
-                        if (subCubes[i].position.equals(new THREE.Vector3(_x, 3, -3))) {
-                            subCubes[i].position.set(_x, 3, 3);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(_x, 3, 3))) {
-                            subCubes[i].position.set(_x, -3, 3);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(_x, -3, 3))) {
-                            subCubes[i].position.set(_x, -3, -3);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(_x, -3, -3))) {
-                            subCubes[i].position.set(_x, 3, -3);
-                        }
-
-                        // Cross
-                        else if (subCubes[i].position.equals(new THREE.Vector3(_x, 3, 0))) {
-                            subCubes[i].position.set(_x, 0, 3);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(_x, 0, 3))) {
-                            subCubes[i].position.set(_x, -3, 0);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(_x, -3, 0))) {
-                            subCubes[i].position.set(_x, 0, -3);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(_x, 0, -3))) {
-                            subCubes[i].position.set(_x, 3, 0);
-                        }
+                        subCubes[i].position.y = yNew;
+                        subCubes[i].position.z = zNew;
 
                         subCubes[i].rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), THREE.Math.degToRad(90));
-
-                        /*console.log(i + ": (" +
-                            subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z + "), (" +
-                            THREE.Math.radToDeg(subCubes[i].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.z) + ")");//*/
                     }
+
+                    console.log('X');
                 }
 
-                if (_x == -3) {
-                    console.log('L');
-                }
-                else { // if (_x == 3) 
-                    console.log('R');
-                }
-            }
+                function cubeRotateY() {
+                    for (let i = 0; i < subCubes.length; ++i) {
+                        let sin = Math.sin(THREE.Math.degToRad(-90));
+                        let cos = Math.cos(THREE.Math.degToRad(-90));
 
-            function rotateX_i(_x) {
-                for (let i = 0; i < subCubes.length; ++i) {
-                    if (subCubes[i].position.x == _x) {
+                        let zNew = Math.round((subCubes[i].position.z * cos) - (subCubes[i].position.x * sin));
+                        let xNew = Math.round((subCubes[i].position.z * sin) + (subCubes[i].position.x * cos));
 
-                        // Corners
-                        if (subCubes[i].position.equals(new THREE.Vector3(_x, 3, 3))) {
-                            subCubes[i].position.set(_x, 3, -3);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(_x, -3, 3))) {
-                            subCubes[i].position.set(_x, 3, 3);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(_x, -3, -3))) {
-                            subCubes[i].position.set(_x, -3, 3);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(_x, 3, -3))) {
-                            subCubes[i].position.set(_x, -3, -3);
-                        }
-
-                        // Cross
-                        else if (subCubes[i].position.equals(new THREE.Vector3(_x, 0, 3))) {
-                            subCubes[i].position.set(_x, 3, 0);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(_x, -3, 0))) {
-                            subCubes[i].position.set(_x, 0, 3);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(_x, 0, -3))) {
-                            subCubes[i].position.set(_x, -3, 0);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(_x, 3, 0))) {
-                            subCubes[i].position.set(_x, 0, -3);
-                        }
-
-                        subCubes[i].rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), THREE.Math.degToRad(-90));
-
-                        /*console.log(i + ": (" +
-                            subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z + "), (" +
-                            THREE.Math.radToDeg(subCubes[i].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.z) + ")");//*/
-                    }
-                }
-
-                if (_x == -3) {
-                    console.log('L\'');
-                }
-                else { // if (_x == 3) 
-                    console.log('R\'');
-                }
-            }
-
-            function rotateY(_y) {
-                for (let i = 0; i < subCubes.length; ++i) {
-                    if (subCubes[i].position.y == _y) {
-
-                        // Corners
-                        if (subCubes[i].position.equals(new THREE.Vector3(-3, _y, -3))) {
-                            subCubes[i].position.set(3, _y, -3);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(3, _y, -3))) {
-                            subCubes[i].position.set(3, _y, 3);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(3, _y, 3))) {
-                            subCubes[i].position.set(-3, _y, 3);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(-3, _y, 3))) {
-                            subCubes[i].position.set(-3, _y, -3);
-                        }
-
-                        // Cross
-                        else if (subCubes[i].position.equals(new THREE.Vector3(0, _y, -3))) {
-                            subCubes[i].position.set(3, _y, 0);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(3, _y, 0))) {
-                            subCubes[i].position.set(0, _y, 3);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(0, _y, 3))) {
-                            subCubes[i].position.set(-3, _y, 0);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(-3, _y, 0))) {
-                            subCubes[i].position.set(0, _y, -3);
-                        }
+                        subCubes[i].position.z = zNew;
+                        subCubes[i].position.x = xNew;
 
                         subCubes[i].rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), THREE.Math.degToRad(-90));
-
-                        /*console.log(i + ": (" +
-                            subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z + "), (" +
-                            THREE.Math.radToDeg(subCubes[i].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.z) + ")");//*/
                     }
+
+                    console.log('Y');
                 }
 
-                if (_y == -3) {
-                    console.log('D');
-                }
-                else { // if (_y == 3) 
-                    console.log('U');
-                }
-            }
+                function cubeRotateZ() {
+                    for (let i = 0; i < subCubes.length; ++i) {
+                        let sin = Math.sin(THREE.Math.degToRad(-90));
+                        let cos = Math.cos(THREE.Math.degToRad(-90));
 
-            function rotateZ(_z) {
-                for (let i = 0; i < subCubes.length; ++i) {
-                    if (subCubes[i].position.z == _z) {
+                        let xNew = Math.round((subCubes[i].position.x * cos) - (subCubes[i].position.y * sin));
+                        let yNew = Math.round((subCubes[i].position.x * sin) + (subCubes[i].position.y * cos));
 
-                        // Corners
-                        if (subCubes[i].position.equals(new THREE.Vector3(-3, 3, _z))) {
-                            subCubes[i].position.set(3, 3, _z);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(3, 3, _z))) {
-                            subCubes[i].position.set(3, -3, _z);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(3, -3, _z))) {
-                            subCubes[i].position.set(-3, -3, _z);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(-3, -3, _z))) {
-                            subCubes[i].position.set(-3, 3, _z);
-                        }
-
-                        // Cross
-                        else if (subCubes[i].position.equals(new THREE.Vector3(0, 3, _z))) {
-                            subCubes[i].position.set(3, 0, _z);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(3, 0, _z))) {
-                            subCubes[i].position.set(0, -3, _z);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(0, -3, _z))) {
-                            subCubes[i].position.set(-3, 0, _z);
-                        }
-                        else if (subCubes[i].position.equals(new THREE.Vector3(-3, 0, _z))) {
-                            subCubes[i].position.set(0, 3, _z);
-                        }
+                        subCubes[i].position.x = xNew;
+                        subCubes[i].position.y = yNew;
 
                         subCubes[i].rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), THREE.Math.degToRad(-90));
+                    }
+
+                    console.log('Z');
+                }
+            }
+
+            // dat.GUI controls
+            {
+                var guiRight = new dat.GUI({ width: 100 });
+                var guiLeft = new dat.GUI({ width: 130 });
+                var guiFarLeft = new dat.GUI({ width: 100 });
+
+                var rotate = new function () {
+                    this.X = function () {
+                        cubeRotateX();
+                    }
+
+                    this.Y = function () {
+                        cubeRotateY();
+                    }
+
+                    this.Z = function () {
+                        cubeRotateZ();
+                    }
+
+                    this.L = function () {
+                        rotateX(-3);
+                    };
+                    this.R = function () {
+                        rotateX_i(3);
+                    }
+
+                    this.Li = function () {
+                        rotateX_i(-3);
+                    }
+                    this.Ri = function () {
+                        rotateX(3);
+                    }
+
+                    this.U = function () {
+                        rotateY(3);
+                    }
+                    this.D = function () {
+                        rotateY_i(-3); 
+                    }
+
+                    this.Ui = function () {
+                        rotateY_i(3);
+                    }
+                    this.Di = function () {
+                        rotateY(-3);
+                    }
+
+                    this.F = function () {
+                        rotateZ(3);
+                    }
+                    this.B = function () {
+                        rotateZ_i(-3); 
+                    }
+
+                    this.Fi = function () {
+                        rotateZ_i(3);
+                    }
+                    this.Bi = function () {
+                        rotateZ(-3);
+                    }
+
+                    this.Reset = function () {
+                        console.log('Reset');
+                        for (let i = 0; i < subCubes.length; ++i) {
+
+                            subCubes[i].position.x = initialPosition[i].x;
+                            subCubes[i].position.y = initialPosition[i].y;
+                            subCubes[i].position.z = initialPosition[i].z;
+                            subCubes[i].rotation.set(0, 0, 0);
+                        }
+
+                        //console.log("Reset Cubes");
+                        //console.log("subCubes[0].position = (" + subCubes[0].position.x + ", " + subCubes[0].position.y + ", " + subCubes[0].position.z + ")");
+                        //console.log("subCubes[0].rotation = (" + THREE.Math.radToDeg(subCubes[0].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[0].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[0].rotation.z) + ")");
+                    }
+
+                    this.Scramble = function () {
+                        console.log('Begin Scramble');
+                        for (let i = 0; i < 60; ++i) {
+                            let turn = Math.floor(Math.random() * 6);
+
+                            switch (turn) {
+                                case (0): {
+
+                                    rotateX(-3);
+                                    break;
+                                }
+                                case (1): {
+                                    rotateX(3);
+                                    break;
+                                }
+                                case (2): {
+
+                                    rotateY(-3);
+                                    break;
+                                }
+                                case (3): {
+                                    rotateY(3);
+                                    break;
+                                }
+                                case (4): {
+
+                                    rotateZ(-3);
+                                    break;
+                                }
+                                case (5): {
+                                    rotateZ(3);
+                                    break;
+                                }
+                            }
+                        }
+
+                        console.log('End Scramble');
+                    }
+                }
+
+                guiLeft.add(rotate, 'L');
+                guiRight.add(rotate, 'R');
+
+                guiLeft.add(rotate, 'Li');
+                guiRight.add(rotate, 'Ri');
+
+                guiLeft.add(rotate, 'U');
+                guiRight.add(rotate, 'D');
+
+                guiLeft.add(rotate, 'Ui');
+                guiRight.add(rotate, 'Di');
+
+                guiLeft.add(rotate, 'F');
+                guiRight.add(rotate, 'B');
+
+                guiLeft.add(rotate, 'Fi');
+                guiRight.add(rotate, 'Bi');
+
+                guiRight.add(rotate, 'Reset');
+                guiLeft.add(rotate, 'Scramble');
+
+                guiFarLeft.add(rotate, 'X');
+                guiFarLeft.add(rotate, 'Y');
+                guiFarLeft.add(rotate, 'Z');
+            }
+
+            // Rotating cube function
+            {
+                var updateRotation = function () {
+                    if (rotateTrue) {
+                        let rotationX = 0.02;
+                        let rotationY = 0.01;
+                        let rotationZ = 0.00;
+
+                        if (sphereTrue) {
+                            sphere.rotation.x += rotationX;
+                            sphere.rotation.y += rotationY;
+                            sphere.rotation.z += rotationZ;
+                        }
+
+                        cube.rotation.x += rotationX;
+                        cube.rotation.y += rotationY;
+                        cube.rotation.z += rotationZ;
+                    }
+                };
+            }
+
+            var rotationAngle = 2;
+            var rotateX = true;
+            var rotations = 0;
+
+            function xRotation(_x, direction) {
+                for (let i = 0; i < subCubes.length; ++i) {
+                    if (subCubes[i].position.x == _x) {
+                        let sin = Math.sin(THREE.Math.degToRad(rotationAngle * direction));
+                        let cos = Math.cos(THREE.Math.degToRad(rotationAngle * direction));
+
+                        let yNew = (subCubes[i].position.y * cos) - (subCubes[i].position.z * sin);
+                        let zNew = (subCubes[i].position.y * sin) + (subCubes[i].position.z * cos);
+
+                        subCubes[i].position.y = yNew;
+                        subCubes[i].position.z = zNew;
+
+                        subCubes[i].rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), THREE.Math.degToRad(rotationAngle * direction));
 
                         /*console.log(i + ": (" +
                             subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z + "), (" +
                             THREE.Math.radToDeg(subCubes[i].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.z) + ")");//*/
                     }
                 }
-
-                if (_z == 3) {
-                    console.log('F');
-                }
-                else { // if (_z == -3) 
-                    console.log('B');
-                }
             }
-
-            var guiRight = new dat.GUI({ width: 100 });
-            var guiLeft = new dat.GUI({ width: 130 });
-
-            var rotate = new function () {
-                this.L = function () {
-                    rotateX(-3);
-                };
-                this.R = function () {
-                    rotateX(3);
-                }
-
-                this.Li = function () {
-                    rotateX_i(-3);
-                }
-                this.Ri = function () {
-                    rotateX_i(3);
-                }//*/
-
-                this.U = function () {
-                    rotateY(3);
-                }
-                this.D = function () {
-                    rotateY(-3);
-                }
-
-                this.Ui = function () {
-                    rotateY_i(3);
-                }
-                this.Di = function () {
-                    rotateY_i(-3);
-                }//*/
-
-                this.F = function () {
-                    rotateZ(3);
-                }
-                this.B = function () {
-                    rotateZ(-3);
-                }
-
-                this.Fi = function () {
-                    rotateZ_i(3);
-                }
-                this.Bi = function () {
-                    rotateZ_i(-3);
-                }//*/
-
-                this.Reset = function () {
-                    for (let i = 0; i < subCubes.length; ++i) {
-
-                        subCubes[i].position.x = initialPosition[i].x;
-                        subCubes[i].position.y = initialPosition[i].y;
-                        subCubes[i].position.z = initialPosition[i].z;
-                        subCubes[i].rotation.set(0, 0, 0);
-                    }
-
-                    //console.log("Reset Cubes");
-                    //console.log("subCubes[0].position = (" + subCubes[0].position.x + ", " + subCubes[0].position.y + ", " + subCubes[0].position.z + ")");
-                    //console.log("subCubes[0].rotation = (" + THREE.Math.radToDeg(subCubes[0].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[0].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[0].rotation.z) + ")");
-                }
-
-                this.Scramble = function () {
-                    for (let i = 0; i < 60; ++i) {
-                        let turn = Math.floor(Math.random() * 6);
-
-                        switch (turn) {
-                            case (0): {
-
-                                rotateX(-3);
-                                break;
-                            }
-                            case (1): {
-                                rotateX(3);
-                                break;
-                            }
-                            case (2): {
-
-                                rotateY (-3);
-                                break;
-                            }
-                            case (3): {
-                                rotateY(3);
-                                break;
-                            }
-                            case (4): {
-
-                                rotateZ(-3);
-                                break;
-                            }
-                            case (5): {
-                                rotateZ(3);
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            guiLeft.add(rotate, 'L');
-            guiRight.add(rotate, 'R');
-
-            guiLeft.add(rotate, 'Li');
-            guiRight.add(rotate, 'Ri');//*/
-
-            guiLeft.add(rotate, 'U');
-            guiRight.add(rotate, 'D');
-
-            guiLeft.add(rotate, 'Ui');
-            guiRight.add(rotate, 'Di');//*/
-
-            guiLeft.add(rotate, 'F');
-            guiRight.add(rotate, 'B');
-
-            guiLeft.add(rotate, 'Fi');
-            guiRight.add(rotate, 'Bi');//*/
-
-            guiRight.add(rotate, 'Reset');
-            guiLeft.add(rotate, 'Scramble');
-
-            var updateRotation = function () {
-                if (rotateTrue) {
-                    let rotationX = 0.02;
-                    let rotationY = 0.01;
-                    let rotationZ = 0.00;
-
-                    if (sphereTrue) {
-                        sphere.rotation.x += rotationX;
-                        sphere.rotation.y += rotationY;
-                        sphere.rotation.z += rotationZ;
-                    }
-
-                    cube.rotation.x += rotationX;
-                    cube.rotation.y += rotationY;
-                    cube.rotation.z += rotationZ;
-                }
-            };
 
             // program logic
             var update = function () {
-                updateRotation();
+                //updateRotation();
+                if (rotateX) {
+                    xRotation(-3, -1);
+                    ++rotations;
+
+                    if (rotations == 45) {
+                        for (let i = 0; i < subCubes.length; ++i) {
+                            subCubes[i].position.x = Math.round(subCubes[i].position.x);
+                            subCubes[i].position.y = Math.round(subCubes[i].position.y);
+                            subCubes[i].position.z = Math.round(subCubes[i].position.z);
+                            //console.log(subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z);
+                        }
+
+                        rotateX = false;
+                        rotations = 0;
+                    }
+                }
             };
 
             // draw Scene
