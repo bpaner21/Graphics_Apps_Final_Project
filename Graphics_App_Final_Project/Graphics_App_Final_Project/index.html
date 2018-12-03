@@ -24,7 +24,7 @@
 
         <script>
             var rotateTrue = true;
-            //rotateTrue = false;
+            rotateTrue = false;
             var sphereTrue = true;
             sphereTrue = false;
 
@@ -32,7 +32,7 @@
             scene.background = new THREE.Color(0x494949);
             var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-            var renderer = new THREE.WebGLRenderer();
+            var renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
@@ -211,6 +211,54 @@
                 }
             }
 
+            function rotateX_i(_x) {
+                for (let i = 0; i < subCubes.length; ++i) {
+                    if (subCubes[i].position.x == _x) {
+
+                        // Corners
+                        if (subCubes[i].position.equals(new THREE.Vector3(_x, 3, 3))) {
+                            subCubes[i].position.set(_x, 3, -3);
+                        }
+                        else if (subCubes[i].position.equals(new THREE.Vector3(_x, -3, 3))) {
+                            subCubes[i].position.set(_x, 3, 3);
+                        }
+                        else if (subCubes[i].position.equals(new THREE.Vector3(_x, -3, -3))) {
+                            subCubes[i].position.set(_x, -3, 3);
+                        }
+                        else if (subCubes[i].position.equals(new THREE.Vector3(_x, 3, -3))) {
+                            subCubes[i].position.set(_x, -3, -3);
+                        }
+
+                        // Cross
+                        else if (subCubes[i].position.equals(new THREE.Vector3(_x, 0, 3))) {
+                            subCubes[i].position.set(_x, 3, 0);
+                        }
+                        else if (subCubes[i].position.equals(new THREE.Vector3(_x, -3, 0))) {
+                            subCubes[i].position.set(_x, 0, 3);
+                        }
+                        else if (subCubes[i].position.equals(new THREE.Vector3(_x, 0, -3))) {
+                            subCubes[i].position.set(_x, -3, 0);
+                        }
+                        else if (subCubes[i].position.equals(new THREE.Vector3(_x, 3, 0))) {
+                            subCubes[i].position.set(_x, 0, -3);
+                        }
+
+                        subCubes[i].rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), THREE.Math.degToRad(-90));
+
+                        /*console.log(i + ": (" +
+                            subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z + "), (" +
+                            THREE.Math.radToDeg(subCubes[i].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.z) + ")");//*/
+                    }
+                }
+
+                if (_x == -3) {
+                    console.log('L\'');
+                }
+                else { // if (_x == 3) 
+                    console.log('R\'');
+                }
+            }
+
             function rotateY(_y) {
                 for (let i = 0; i < subCubes.length; ++i) {
                     if (subCubes[i].position.y == _y) {
@@ -318,7 +366,7 @@
                     rotateX(3);
                 }
 
-                /*this.Li = function () {
+                this.Li = function () {
                     rotateX_i(-3);
                 }
                 this.Ri = function () {
@@ -332,7 +380,7 @@
                     rotateY(-3);
                 }
 
-                /*this.Ui = function () {
+                this.Ui = function () {
                     rotateY_i(3);
                 }
                 this.Di = function () {
@@ -346,10 +394,10 @@
                     rotateZ(-3);
                 }
 
-                /*this.Fi = function () {
+                this.Fi = function () {
                     rotateZ_i(3);
                 }
-                this.B = function () {
+                this.Bi = function () {
                     rotateZ_i(-3);
                 }//*/
 
@@ -368,7 +416,7 @@
                 }
 
                 this.Scramble = function () {
-                    for (let i = 0; i < 20; ++i) {
+                    for (let i = 0; i < 60; ++i) {
                         let turn = Math.floor(Math.random() * 6);
 
                         switch (turn) {
@@ -407,19 +455,19 @@
             guiLeft.add(rotate, 'L');
             guiRight.add(rotate, 'R');
 
-            /*guiLeft.add(rotate, 'Li');
+            guiLeft.add(rotate, 'Li');
             guiRight.add(rotate, 'Ri');//*/
 
             guiLeft.add(rotate, 'U');
             guiRight.add(rotate, 'D');
 
-            /*guiLeft.add(rotate, 'Ui');
+            guiLeft.add(rotate, 'Ui');
             guiRight.add(rotate, 'Di');//*/
 
             guiLeft.add(rotate, 'F');
             guiRight.add(rotate, 'B');
 
-            /*guiLeft.add(rotate, 'Fi');
+            guiLeft.add(rotate, 'Fi');
             guiRight.add(rotate, 'Bi');//*/
 
             guiRight.add(rotate, 'Reset');
@@ -445,7 +493,7 @@
 
             // program logic
             var update = function () {
-                //updateRotation();
+                updateRotation();
             };
 
             // draw Scene
