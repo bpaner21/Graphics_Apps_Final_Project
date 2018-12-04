@@ -28,6 +28,12 @@
             var sphereTrue = true;
             sphereTrue = false;
 
+            var subCubeSize = 2.85;
+
+            function halfRound(value) {
+                return (Math.round(value * 2) / 2);
+            }
+
             // Scene, Camera, Window
             {
                 var scene = new THREE.Scene();
@@ -62,39 +68,75 @@
 
             // Cube internal borders
             {
-                var borderGeometryX = new THREE.BoxGeometry(0.1, 8.8, 8.8);
-                var borderGeometryY = new THREE.BoxGeometry(8.8, 0.1, 8.8);
-                var borderGeometryZ = new THREE.BoxGeometry(8.8, 8.8, 0.1);
+                var borderGeometryXY = new THREE.BoxGeometry(subCubeSize, subCubeSize, 0.1); // F/B panels 
+                var borderGeometryXZ = new THREE.BoxGeometry(subCubeSize, 0.1, subCubeSize); // U/D panels
+                var borderGeometryYZ = new THREE.BoxGeometry(0.1, subCubeSize, subCubeSize); // L/R panels
                 var borderMaterial = new THREE.MeshPhongMaterial({ color: 0x101010 });
 
-                var border1 = new THREE.Mesh(borderGeometryZ, borderMaterial);
-                border1.position.set(0, 0, -1.5);
-                scene.add(border1);
+                /*
+                var borderMaterial1 = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+                var borderMaterial2 = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+                var borderMaterial3 = new THREE.MeshPhongMaterial({ color: 0x0000ff });
+                //*/
 
-                var border2 = new THREE.Mesh(borderGeometryZ, borderMaterial);
-                border2.position.set(0, 0, 1.5);
-                scene.add(border2);
+                var borders = new THREE.Object3D();
 
-                var border3 = new THREE.Mesh(borderGeometryY, borderMaterial);
-                border3.position.set(0, -1.5, 0);
-                scene.add(border3);
+                var borderPanels = [];
+                var borderInitialPositions = [];
 
-                var border4 = new THREE.Mesh(borderGeometryY, borderMaterial);
-                border4.position.set(0, 1.5, 0);
-                scene.add(border4);
+                for (let x = -3; x <= 3; x += 3) {
+                    for (let y = -3; y <= 3; y += 3) {
+                        newBorder1 = new THREE.Mesh(borderGeometryXY, borderMaterial);
+                        newBorder1.position.set(x, y, -1.5);
+                        borderPanels.push(newBorder1);
+                        borderInitialPositions.push(new THREE.Vector3(x, y, -1.5));
 
-                var border5 = new THREE.Mesh(borderGeometryX, borderMaterial);
-                border5.position.set(-1.5, 0, 0);
-                scene.add(border5);
+                        newBorder2 = new THREE.Mesh(borderGeometryXY, borderMaterial);
+                        newBorder2.position.set(x, y, 1.5);
+                        borderPanels.push(newBorder2);
+                        borderInitialPositions.push(new THREE.Vector3(x, y, 1.5));
+                    }
+                }
 
-                var border6 = new THREE.Mesh(borderGeometryX, borderMaterial);
-                border6.position.set(1.5, 0, 0);
-                scene.add(border6);
+                for (let x = -3; x <= 3; x += 3) {
+                    for (let z = -3; z <= 3; z += 3) {
+                        newBorder1 = new THREE.Mesh(borderGeometryXZ, borderMaterial);
+                        newBorder1.position.set(x, -1.5, z);
+                        borderPanels.push(newBorder1);
+                        borderInitialPositions.push(new THREE.Vector3(x, -1.5, z));
+
+                        newBorder2 = new THREE.Mesh(borderGeometryXZ, borderMaterial);
+                        newBorder2.position.set(x, 1.5, z);
+                        borderPanels.push(newBorder2);
+                        borderInitialPositions.push(new THREE.Vector3(x, 1.5, z));
+                    }
+                }
+
+                for (let y = -3; y <= 3; y += 3) {
+                    for (let z = -3; z <= 3; z += 3) {
+                        newBorder1 = new THREE.Mesh(borderGeometryYZ, borderMaterial);
+                        newBorder1.position.set(-1.5, y, z);
+                        borderPanels.push(newBorder1);
+                        borderInitialPositions.push(new THREE.Vector3(-1.5, y, z));
+
+                        newBorder2 = new THREE.Mesh(borderGeometryYZ, borderMaterial);
+                        newBorder2.position.set(1.5, y, z);
+                        borderPanels.push(newBorder2);
+                        borderInitialPositions.push(new THREE.Vector3(1.5, y, z));
+                    }
+                }
+
+                for (let i = 0; i < borderPanels.length; ++i) {
+                    borders.add(borderPanels[i]);
+                }
+
+                //console.log(borderPanels.length + ", " + borderInitialPositions.length);
+
+                scene.add(borders);
             }
 
             // Cube setup
             {
-                var subCubeSize = 2.85;
                 // create a shape
                 var geometry = new THREE.BoxGeometry(subCubeSize, subCubeSize, subCubeSize);
 
@@ -545,13 +587,234 @@
                 }
             }
 
+            // Rotating cube functions
+            {/*
+                var updateRotation = function () {
+                    if (rotateTrue) {
+                        let rotationX = 0.02;
+                        let rotationY = 0.01;
+                        let rotationZ = 0.00;
+
+                        if (sphereTrue) {
+                            sphere.rotation.x += rotationX;
+                            sphere.rotation.y += rotationY;
+                            sphere.rotation.z += rotationZ;
+                        }
+
+                        cube.rotation.x += rotationX;
+                        cube.rotation.y += rotationY;
+                        cube.rotation.z += rotationZ;
+                    }
+                };//*/
+            }
+
+            // Update rotation functions
+            {
+                var rotationAngle = 6;
+                var maxRotations = (90 / rotationAngle);
+                var rotating = false;
+                var rotationCase = 0;
+                var rotations = 0;
+
+                function xRotation(_x, direction) {
+                    let sin = Math.sin(THREE.Math.degToRad(rotationAngle * direction));
+                    let cos = Math.cos(THREE.Math.degToRad(rotationAngle * direction));
+
+                    for (let i = 0; i < subCubes.length; ++i) {
+                        if (subCubes[i].position.x == _x) {
+
+                            let yNew = (subCubes[i].position.y * cos) - (subCubes[i].position.z * sin);
+                            let zNew = (subCubes[i].position.y * sin) + (subCubes[i].position.z * cos);
+
+                            subCubes[i].position.y = yNew;
+                            subCubes[i].position.z = zNew;
+
+                            subCubes[i].rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), THREE.Math.degToRad(rotationAngle * direction));
+
+                            /*console.log(i + ": (" +
+                                subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z + "), (" +
+                                THREE.Math.radToDeg(subCubes[i].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.z) + ")");//*/
+                        }
+                    }
+
+                    for (let j = 0; j < borderPanels.length; ++j) {
+                        if (borderPanels[j].position.x == _x) {
+                            let yNew = (borderPanels[j].position.y * cos) - (borderPanels[j].position.z * sin);
+                            let zNew = (borderPanels[j].position.y * sin) + (borderPanels[j].position.z * cos);
+
+                            borderPanels[j].position.y = yNew;
+                            borderPanels[j].position.z = zNew;
+
+                            borderPanels[j].rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), THREE.Math.degToRad(rotationAngle * direction));
+                        }
+                    }
+                }
+
+                function yRotation(_y, direction) {
+                    let sin = Math.sin(THREE.Math.degToRad(rotationAngle * direction));
+                    let cos = Math.cos(THREE.Math.degToRad(rotationAngle * direction));
+
+                    for (let i = 0; i < subCubes.length; ++i) {
+                        if (subCubes[i].position.y == _y) {
+
+                            let zNew = (subCubes[i].position.z * cos) - (subCubes[i].position.x * sin);
+                            let xNew = (subCubes[i].position.z * sin) + (subCubes[i].position.x * cos);
+
+                            subCubes[i].position.z = zNew;
+                            subCubes[i].position.x = xNew;
+
+                            subCubes[i].rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), THREE.Math.degToRad(rotationAngle * direction));
+
+                            /*console.log(i + ": (" +
+                                subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z + "), (" +
+                                THREE.Math.radToDeg(subCubes[i].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.z) + ")");//*/
+                        }
+                    }
+
+                    for (let j = 0; j < borderPanels.length; ++j) {
+                        if (borderPanels[j].position.y == _y) {
+                            let zNew = (borderPanels[j].position.z * cos) - (borderPanels[j].position.x * sin);
+                            let xNew = (borderPanels[j].position.z * sin) + (borderPanels[j].position.x * cos);
+
+                            borderPanels[j].position.z = zNew;
+                            borderPanels[j].position.x = xNew;
+
+                            borderPanels[j].rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), THREE.Math.degToRad(rotationAngle * direction));
+                        }
+                    }
+                }
+
+                function zRotation(_z, direction) {
+                    let sin = Math.sin(THREE.Math.degToRad(rotationAngle * direction));
+                    let cos = Math.cos(THREE.Math.degToRad(rotationAngle * direction));
+
+                    for (let i = 0; i < subCubes.length; ++i) {
+                        if (subCubes[i].position.z == _z) {
+
+                            let xNew = (subCubes[i].position.x * cos) - (subCubes[i].position.y * sin);
+                            let yNew = (subCubes[i].position.x * sin) + (subCubes[i].position.y * cos);
+
+                            subCubes[i].position.x = xNew;
+                            subCubes[i].position.y = yNew;
+
+                            subCubes[i].rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), THREE.Math.degToRad(rotationAngle * direction));
+
+                            /*console.log(i + ": (" +
+                                subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z + "), (" +
+                                THREE.Math.radToDeg(subCubes[i].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.z) + ")");//*/
+                        }
+                    }
+
+                    for (let j = 0; j < borderPanels.length; ++j) {
+                        if (borderPanels[j].position.z == _z) {
+                            let xNew = (borderPanels[j].position.x * cos) - (borderPanels[j].position.y * sin);
+                            let yNew = (borderPanels[j].position.x * sin) + (borderPanels[j].position.y * cos);
+
+                            borderPanels[j].position.x = xNew;
+                            borderPanels[j].position.y = yNew;
+
+                            borderPanels[j].rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), THREE.Math.degToRad(rotationAngle * direction));
+                        }
+                    }
+                }
+
+                var updateRotation = function (rotationF, pivot, direction) {
+
+                    rotationF(pivot, direction);
+
+                    ++rotations;
+                    //console.log('++rotations: ' + rotations);
+
+                    if (rotations == maxRotations) {
+                        finishRotating();
+                    }
+                }
+
+                function finishRotating() {
+                    for (let i = 0; i < subCubes.length; ++i) {
+                        subCubes[i].position.x = Math.round(subCubes[i].position.x);
+                        subCubes[i].position.y = Math.round(subCubes[i].position.y);
+                        subCubes[i].position.z = Math.round(subCubes[i].position.z);
+                        //console.log(subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z);
+                    }
+
+                    for (let j = 0; j < borderPanels.length; ++j) {
+                        borderPanels[j].position.x = halfRound(borderPanels[j].position.x);
+                        borderPanels[j].position.y = halfRound(borderPanels[j].position.y);
+                        borderPanels[j].position.z = halfRound(borderPanels[j].position.z);
+                    }
+
+                    rotating = false;
+                    rotations = 0;
+                }
+
+                function rotationSwitch(c) {
+                    switch (c) {
+                        // L/R
+                        case 1: { // L
+                            updateRotation(xRotation, -3, 1);
+                            break;
+                        }
+                        case 2: { // Li
+                            updateRotation(xRotation, -3, -1);
+                            break;
+                        }
+                        case 3: { // R
+                            updateRotation(xRotation, 3, -1);
+                            break;
+                        }
+                        case 4: { // Ri
+                            updateRotation(xRotation, 3, 1);
+                            break;
+                        }
+
+                        // U/D
+                        case 5: { // U
+                            updateRotation(yRotation, 3, -1);
+                            break;
+                        }
+                        case 6: { // Ui
+                            updateRotation(yRotation, 3, 1);
+                            break;
+                        }
+                        case 7: { // D
+                            updateRotation(yRotation, -3, 1);
+                            break;
+                        }
+                        case 8: { // Di
+                            updateRotation(yRotation, -3, -1);
+                            break;
+                        }
+
+                        // F/B
+                        case 9: { // F
+                            updateRotation(zRotation, 3, -1);
+                            break;
+                        }
+                        case 10: { // Fi
+                            updateRotation(zRotation, 3, 1);
+                            break;
+                        }
+                        case 11: { // B
+                            updateRotation(zRotation, -3, 1);
+                            break;
+                        }
+                        case 12: { // Bi
+                            updateRotation(zRotation, -3, -1);
+                            break;
+                        }
+                    }
+                }
+            }
+
             // dat.GUI controls
             {
                 var guiRight = new dat.GUI({ width: 100 });
                 var guiLeft = new dat.GUI({ width: 130 });
-                var guiFarLeft = new dat.GUI({ width: 100 });
+                var guiFarLeft = new dat.GUI({ width: 130 });
 
                 var rotate = new function () {
+
                     this.X = function () {
                         cubeRotateX();
                     }
@@ -565,49 +828,89 @@
                     }
 
                     this.L = function () {
-                        rotateX(-3);
+                        if (!rotating) {
+                            rotationCase = 1;
+                            rotating = true;
+                        }
                     };
-                    this.R = function () {
-                        rotateX_i(3);
+                    this.Li = function () {
+                        if (!rotating) {
+                            rotationCase = 2;
+                            rotating = true;
+                        }
                     }
 
-                    this.Li = function () {
-                        rotateX_i(-3);
+                    this.R = function () {
+                        if (!rotating) {
+                            rotationCase = 3;
+                            rotating = true;
+                        }
                     }
                     this.Ri = function () {
-                        rotateX(3);
+                        if (!rotating) {
+                            rotationCase = 4;
+                            rotating = true;
+                        }
                     }
 
                     this.U = function () {
-                        rotateY(3);
+                        if (!rotating) {
+                            rotationCase = 5;
+                            rotating = true;
+                        }
                     }
-                    this.D = function () {
-                        rotateY_i(-3); 
+                    this.Ui = function () {
+                        if (!rotating) {
+                            rotationCase = 6;
+                            rotating = true;
+                        }
                     }
 
-                    this.Ui = function () {
-                        rotateY_i(3);
+                    this.D = function () {
+                        if (!rotating) {
+                            rotationCase = 7;
+                            rotating = true;
+                        }
                     }
                     this.Di = function () {
-                        rotateY(-3);
+                        if (!rotating) {
+                            rotationCase = 8;
+                            rotating = true;
+                        }
                     }
 
                     this.F = function () {
-                        rotateZ(3);
+                        if (!rotating) {
+                            rotationCase = 9;
+                            rotating = true;
+                        }
                     }
-                    this.B = function () {
-                        rotateZ_i(-3); 
+                    this.Fi = function () {
+                        if (!rotating) {
+                            rotationCase = 10;
+                            rotating = true;
+                        }
                     }
 
-                    this.Fi = function () {
-                        rotateZ_i(3);
+                    this.B = function () {
+                        if (!rotating) {
+                            rotationCase = 11;
+                            rotating = true;
+                        }
                     }
                     this.Bi = function () {
-                        rotateZ(-3);
+                        if (!rotating) {
+                            rotationCase = 12;
+                            rotating = true;
+                        }
                     }
 
                     this.Reset = function () {
                         console.log('Reset');
+
+                        rotations = 0;
+                        rotating = false;
+
                         for (let i = 0; i < subCubes.length; ++i) {
 
                             subCubes[i].position.x = initialPosition[i].x;
@@ -616,48 +919,60 @@
                             subCubes[i].rotation.set(0, 0, 0);
                         }
 
+                        for (let j = 0; j < borderPanels.length; ++j) {
+
+                            borderPanels[j].position.x = borderInitialPositions[j].x;
+                            borderPanels[j].position.y = borderInitialPositions[j].y;
+                            borderPanels[j].position.z = borderInitialPositions[j].z;
+                            borderPanels[j].rotation.set(0, 0, 0);
+                        }
+
+                        
+
                         //console.log("Reset Cubes");
                         //console.log("subCubes[0].position = (" + subCubes[0].position.x + ", " + subCubes[0].position.y + ", " + subCubes[0].position.z + ")");
                         //console.log("subCubes[0].rotation = (" + THREE.Math.radToDeg(subCubes[0].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[0].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[0].rotation.z) + ")");
                     }
 
                     this.Scramble = function () {
-                        console.log('Begin Scramble');
-                        for (let i = 0; i < 60; ++i) {
-                            let turn = Math.floor(Math.random() * 6);
+                        if (rotations == 0) {
+                            console.log('Begin Scramble');
+                            for (let i = 0; i < 60; ++i) {
+                                let turn = Math.floor(Math.random() * 6);
 
-                            switch (turn) {
-                                case (0): {
+                                switch (turn) {
+                                    case (0): {
 
-                                    rotateX(-3);
-                                    break;
-                                }
-                                case (1): {
-                                    rotateX(3);
-                                    break;
-                                }
-                                case (2): {
+                                        rotateX(-3);
+                                        break;
+                                    }
+                                    case (1): {
+                                        rotateX(3);
+                                        break;
+                                    }
+                                    case (2): {
 
-                                    rotateY(-3);
-                                    break;
-                                }
-                                case (3): {
-                                    rotateY(3);
-                                    break;
-                                }
-                                case (4): {
+                                        rotateY(-3);
+                                        break;
+                                    }
+                                    case (3): {
+                                        rotateY(3);
+                                        break;
+                                    }
+                                    case (4): {
 
-                                    rotateZ(-3);
-                                    break;
-                                }
-                                case (5): {
-                                    rotateZ(3);
-                                    break;
+                                        rotateZ(-3);
+                                        break;
+                                    }
+                                    case (5): {
+                                        rotateZ(3);
+                                        break;
+                                    }
                                 }
                             }
-                        }
 
-                        console.log('End Scramble');
+                            console.log('End Scramble');
+                        }
                     }
                 }
 
@@ -686,89 +1001,49 @@
                 guiFarLeft.add(rotate, 'Y');
                 guiFarLeft.add(rotate, 'Z');
             }
-
-            // Rotating cube function
+            
+            // Update function
             {
-                var updateRotation = function () {
-                    if (rotateTrue) {
-                        let rotationX = 0.02;
-                        let rotationY = 0.01;
-                        let rotationZ = 0.00;
+                // program logic
+                var update = function () {
 
-                        if (sphereTrue) {
-                            sphere.rotation.x += rotationX;
-                            sphere.rotation.y += rotationY;
-                            sphere.rotation.z += rotationZ;
-                        }
-
-                        cube.rotation.x += rotationX;
-                        cube.rotation.y += rotationY;
-                        cube.rotation.z += rotationZ;
+                    if (rotating) {
+                        rotationSwitch(rotationCase);
                     }
+
+                    /*if (rotating) {
+                        //xRotation(-3, -1);
+                        updateRotation(zRotation, 3, -1);
+                        //++rotations;
+                    }
+                    if (!rotating) {
+                        //xRotation(3, 1);
+                        updateRotation(yRotation, 3, 1);
+                        //++rotations;
+                    }//*/
                 };
             }
 
-            var rotationAngle = 2;
-            var rotateX = true;
-            var rotations = 0;
+            // Update, Render, Loop
+            {
+                // Initializes the cube pre-Scrambled
+                //rotate.Scramble();
 
-            function xRotation(_x, direction) {
-                for (let i = 0; i < subCubes.length; ++i) {
-                    if (subCubes[i].position.x == _x) {
-                        let sin = Math.sin(THREE.Math.degToRad(rotationAngle * direction));
-                        let cos = Math.cos(THREE.Math.degToRad(rotationAngle * direction));
+                // draw Scene
+                var render = function () {
+                    renderer.render(scene, camera);
+                };
 
-                        let yNew = (subCubes[i].position.y * cos) - (subCubes[i].position.z * sin);
-                        let zNew = (subCubes[i].position.y * sin) + (subCubes[i].position.z * cos);
+                // run game loop (update, render, repeat)
+                var GameLoop = function () {
+                    requestAnimationFrame(GameLoop);
 
-                        subCubes[i].position.y = yNew;
-                        subCubes[i].position.z = zNew;
+                    update();
+                    render();
+                };
 
-                        subCubes[i].rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), THREE.Math.degToRad(rotationAngle * direction));
-
-                        /*console.log(i + ": (" +
-                            subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z + "), (" +
-                            THREE.Math.radToDeg(subCubes[i].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.z) + ")");//*/
-                    }
-                }
+                GameLoop();
             }
-
-            // program logic
-            var update = function () {
-                //updateRotation();
-                if (rotateX) {
-                    xRotation(-3, -1);
-                    ++rotations;
-
-                    if (rotations == 45) {
-                        for (let i = 0; i < subCubes.length; ++i) {
-                            subCubes[i].position.x = Math.round(subCubes[i].position.x);
-                            subCubes[i].position.y = Math.round(subCubes[i].position.y);
-                            subCubes[i].position.z = Math.round(subCubes[i].position.z);
-                            //console.log(subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z);
-                        }
-
-                        rotateX = false;
-                        rotations = 0;
-                    }
-                }
-            };
-
-            // draw Scene
-            var render = function () {
-                renderer.render(scene, camera);
-            };
-
-            // run game loop (update, render, repeat)
-            var GameLoop = function () {
-                requestAnimationFrame(GameLoop);
-
-                update();
-                render();
-            };
-
-
-            GameLoop();
 
         </script>
     </body>
