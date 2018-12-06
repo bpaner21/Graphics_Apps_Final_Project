@@ -533,81 +533,6 @@
                 }
             }
 
-            // Whole cube rotation functions
-            {
-                function cubeRotateX() {
-                    for (let i = 0; i < subCubes.length; ++i) {
-                        let sin = Math.sin(THREE.Math.degToRad(90));
-                        let cos = Math.cos(THREE.Math.degToRad(90));
-
-                        let yNew = Math.round((subCubes[i].position.y * cos) - (subCubes[i].position.z * sin));
-                        let zNew = Math.round((subCubes[i].position.y * sin) + (subCubes[i].position.z * cos));
-
-                        subCubes[i].position.y = yNew;
-                        subCubes[i].position.z = zNew;
-
-                        subCubes[i].rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), THREE.Math.degToRad(90));
-                    }
-
-                    console.log('X');
-                }
-
-                function cubeRotateY() {
-                    for (let i = 0; i < subCubes.length; ++i) {
-                        let sin = Math.sin(THREE.Math.degToRad(-90));
-                        let cos = Math.cos(THREE.Math.degToRad(-90));
-
-                        let zNew = Math.round((subCubes[i].position.z * cos) - (subCubes[i].position.x * sin));
-                        let xNew = Math.round((subCubes[i].position.z * sin) + (subCubes[i].position.x * cos));
-
-                        subCubes[i].position.z = zNew;
-                        subCubes[i].position.x = xNew;
-
-                        subCubes[i].rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), THREE.Math.degToRad(-90));
-                    }
-
-                    console.log('Y');
-                }
-
-                function cubeRotateZ() {
-                    for (let i = 0; i < subCubes.length; ++i) {
-                        let sin = Math.sin(THREE.Math.degToRad(-90));
-                        let cos = Math.cos(THREE.Math.degToRad(-90));
-
-                        let xNew = Math.round((subCubes[i].position.x * cos) - (subCubes[i].position.y * sin));
-                        let yNew = Math.round((subCubes[i].position.x * sin) + (subCubes[i].position.y * cos));
-
-                        subCubes[i].position.x = xNew;
-                        subCubes[i].position.y = yNew;
-
-                        subCubes[i].rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), THREE.Math.degToRad(-90));
-                    }
-
-                    console.log('Z');
-                }
-            }
-
-            // Rotating cube functions
-            {/*
-                var updateRotation = function () {
-                    if (rotateTrue) {
-                        let rotationX = 0.02;
-                        let rotationY = 0.01;
-                        let rotationZ = 0.00;
-
-                        if (sphereTrue) {
-                            sphere.rotation.x += rotationX;
-                            sphere.rotation.y += rotationY;
-                            sphere.rotation.z += rotationZ;
-                        }
-
-                        cube.rotation.x += rotationX;
-                        cube.rotation.y += rotationY;
-                        cube.rotation.z += rotationZ;
-                    }
-                };//*/
-            }
-
             // Update rotation functions
             {
                 var rotationAngle = 6;
@@ -717,6 +642,93 @@
                         }
                     }
                 }
+                
+                function cubeXRotation(_null, direction) {
+                    let sin = Math.sin(THREE.Math.degToRad(rotationAngle * direction));
+                    let cos = Math.cos(THREE.Math.degToRad(rotationAngle * direction));
+
+                    for (let i = 0; i < subCubes.length; ++i) {
+                            let yNew = (subCubes[i].position.y * cos) - (subCubes[i].position.z * sin);
+                            let zNew = (subCubes[i].position.y * sin) + (subCubes[i].position.z * cos);
+
+                            subCubes[i].position.y = yNew;
+                            subCubes[i].position.z = zNew;
+
+                            subCubes[i].rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), THREE.Math.degToRad(rotationAngle * direction));
+
+                            /*console.log(i + ": (" +
+                                subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z + "), (" +
+                                THREE.Math.radToDeg(subCubes[i].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.z) + ")");//*/
+                    }
+
+                    for (let j = 0; j < borderPanels.length; ++j) {
+                            let yNew = (borderPanels[j].position.y * cos) - (borderPanels[j].position.z * sin);
+                            let zNew = (borderPanels[j].position.y * sin) + (borderPanels[j].position.z * cos);
+
+                            borderPanels[j].position.y = yNew;
+                            borderPanels[j].position.z = zNew;
+
+                            borderPanels[j].rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), THREE.Math.degToRad(rotationAngle * direction));
+                    }
+                }
+
+                function cubeYRotation(_null, direction) {
+                    let sin = Math.sin(THREE.Math.degToRad(rotationAngle * direction));
+                    let cos = Math.cos(THREE.Math.degToRad(rotationAngle * direction));
+
+                    for (let i = 0; i < subCubes.length; ++i) {
+                        let zNew = (subCubes[i].position.z * cos) - (subCubes[i].position.x * sin);
+                        let xNew = (subCubes[i].position.z * sin) + (subCubes[i].position.x * cos);
+
+                        subCubes[i].position.z = zNew;
+                        subCubes[i].position.x = xNew;
+
+                        subCubes[i].rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), THREE.Math.degToRad(rotationAngle * direction));
+
+                        /*console.log(i + ": (" +
+                            subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z + "), (" +
+                            THREE.Math.radToDeg(subCubes[i].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.z) + ")");//*/
+                    }
+
+                    for (let j = 0; j < borderPanels.length; ++j) {
+                        let zNew = (borderPanels[j].position.z * cos) - (borderPanels[j].position.x * sin);
+                        let xNew = (borderPanels[j].position.z * sin) + (borderPanels[j].position.x * cos);
+
+                        borderPanels[j].position.z = zNew;
+                        borderPanels[j].position.x = xNew;
+
+                        borderPanels[j].rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), THREE.Math.degToRad(rotationAngle * direction));
+                    }
+                }
+
+                function cubeZRotation(_null, direction) {
+                    let sin = Math.sin(THREE.Math.degToRad(rotationAngle * direction));
+                    let cos = Math.cos(THREE.Math.degToRad(rotationAngle * direction));
+
+                    for (let i = 0; i < subCubes.length; ++i) {
+                        let xNew = (subCubes[i].position.x * cos) - (subCubes[i].position.y * sin);
+                        let yNew = (subCubes[i].position.x * sin) + (subCubes[i].position.y * cos);
+
+                        subCubes[i].position.x = xNew;
+                        subCubes[i].position.y = yNew;
+
+                        subCubes[i].rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), THREE.Math.degToRad(rotationAngle * direction));
+
+                        /*console.log(i + ": (" +
+                            subCubes[i].position.x + ", " + subCubes[i].position.y + ", " + subCubes[i].position.z + "), (" +
+                            THREE.Math.radToDeg(subCubes[i].rotation.x) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.y) + ", " + THREE.Math.radToDeg(subCubes[i].rotation.z) + ")");//*/
+                    }
+
+                    for (let j = 0; j < borderPanels.length; ++j) {
+                        let xNew = (borderPanels[j].position.x * cos) - (borderPanels[j].position.y * sin);
+                        let yNew = (borderPanels[j].position.x * sin) + (borderPanels[j].position.y * cos);
+
+                        borderPanels[j].position.x = xNew;
+                        borderPanels[j].position.y = yNew;
+
+                        borderPanels[j].rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), THREE.Math.degToRad(rotationAngle * direction));
+                    }
+                }
 
                 var updateRotation = function (rotationF, pivot, direction) {
 
@@ -803,6 +815,21 @@
                             updateRotation(zRotation, -3, -1);
                             break;
                         }
+                            
+                        case 13: { // X
+                            updateRotation(cubeXRotation, 0, -1);
+                            break;
+                        }
+
+                        case 14: { // Y
+                            updateRotation(cubeYRotation, 0, -1);
+                            break;
+                        }
+
+                        case 15: { // Z
+                            updateRotation(cubeZRotation, 0, -1);
+                            break;
+                        }
                     }
                 }
             }
@@ -816,15 +843,24 @@
                 var rotate = new function () {
 
                     this.X = function () {
-                        cubeRotateX();
+                        if (!rotating) {
+                            rotationCase = 13;
+                            rotating = true;
+                        }
                     }
 
                     this.Y = function () {
-                        cubeRotateY();
+                        if (!rotating) {
+                            rotationCase = 14;
+                            rotating = true;
+                        }
                     }
 
                     this.Z = function () {
-                        cubeRotateZ();
+                        if (!rotating) {
+                            rotationCase = 15;
+                            rotating = true;
+                        }
                     }
 
                     this.L = function () {
@@ -1027,7 +1063,7 @@
             // Update, Render, Loop
             {
                 // Initializes the cube pre-Scrambled
-                //rotate.Scramble();
+                rotate.Scramble();
 
                 // draw Scene
                 var render = function () {
