@@ -39,7 +39,9 @@
                 var scene = new THREE.Scene();
                 scene.background = new THREE.Color(0x494949);
                 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-                camera.position.z = 14;
+                camera.position.x = 10;
+                camera.position.y = 10;
+                camera.position.z = 10;
 
                 var axes = new THREE.AxesHelper(12);
                 axes.position.set(-6, -6, -6);
@@ -830,6 +832,21 @@
                             updateRotation(cubeZRotation, 0, -1);
                             break;
                         }
+
+                        case 16: { // Xi
+                            updateRotation(cubeXRotation, 0, 1);
+                            break;
+                        }
+
+                        case 17: { // Yi
+                            updateRotation(cubeYRotation, 0, 1);
+                            break;
+                        }
+
+                        case 18: { // Zi
+                            updateRotation(cubeZRotation, 0, 1);
+                            break;
+                        }
                     }
                 }
             }
@@ -859,6 +876,27 @@
                     this.Z = function () {
                         if (!rotating) {
                             rotationCase = 15;
+                            rotating = true;
+                        }
+                    }
+
+                    this.Xi = function () {
+                        if (!rotating) {
+                            rotationCase = 16;
+                            rotating = true;
+                        }
+                    }
+
+                    this.Yi = function () {
+                        if (!rotating) {
+                            rotationCase = 17;
+                            rotating = true;
+                        }
+                    }
+
+                    this.Zi = function () {
+                        if (!rotating) {
+                            rotationCase = 18;
                             rotating = true;
                         }
                     }
@@ -1034,8 +1072,11 @@
                 guiLeft.add(rotate, 'Scramble');
 
                 guiFarLeft.add(rotate, 'X');
+                guiFarLeft.add(rotate, 'Xi');
                 guiFarLeft.add(rotate, 'Y');
+                guiFarLeft.add(rotate, 'Yi');
                 guiFarLeft.add(rotate, 'Z');
+                guiFarLeft.add(rotate, 'Zi');
             }
             
             // Update function
