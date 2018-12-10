@@ -4,18 +4,18 @@
  * @author Mugen87 / https://github.com/Mugen87
  */
 
-import { Geometry } from '../core/Geometry.js';
-import { BufferGeometry } from '../core/BufferGeometry.js';
+import { blockGeometry } from '../core/blockGeometry.js';
+import { BufferblockGeometry } from '../core/BufferblockGeometry.js';
 import { Float32BufferAttribute } from '../core/BufferAttribute.js';
 import { Vector3 } from '../math/Vector3.js';
 
-// SphereGeometry
+// SphereblockGeometry
 
-function SphereGeometry( radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength ) {
+function SphereblockGeometry( radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength ) {
 
-	Geometry.call( this );
+	blockGeometry.call( this );
 
-	this.type = 'SphereGeometry';
+	this.type = 'SphereblockGeometry';
 
 	this.parameters = {
 		radius: radius,
@@ -27,21 +27,21 @@ function SphereGeometry( radius, widthSegments, heightSegments, phiStart, phiLen
 		thetaLength: thetaLength
 	};
 
-	this.fromBufferGeometry( new SphereBufferGeometry( radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength ) );
+	this.fromBufferblockGeometry( new SphereBufferblockGeometry( radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength ) );
 	this.mergeVertices();
 
 }
 
-SphereGeometry.prototype = Object.create( Geometry.prototype );
-SphereGeometry.prototype.constructor = SphereGeometry;
+SphereblockGeometry.prototype = Object.create( blockGeometry.prototype );
+SphereblockGeometry.prototype.constructor = SphereblockGeometry;
 
-// SphereBufferGeometry
+// SphereBufferblockGeometry
 
-function SphereBufferGeometry( radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength ) {
+function SphereBufferblockGeometry( radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength ) {
 
-	BufferGeometry.call( this );
+	BufferblockGeometry.call( this );
 
-	this.type = 'SphereBufferGeometry';
+	this.type = 'SphereBufferblockGeometry';
 
 	this.parameters = {
 		radius: radius,
@@ -136,7 +136,7 @@ function SphereBufferGeometry( radius, widthSegments, heightSegments, phiStart, 
 
 	}
 
-	// build geometry
+	// build blockGeometry
 
 	this.setIndex( indices );
 	this.addAttribute( 'position', new Float32BufferAttribute( vertices, 3 ) );
@@ -145,8 +145,8 @@ function SphereBufferGeometry( radius, widthSegments, heightSegments, phiStart, 
 
 }
 
-SphereBufferGeometry.prototype = Object.create( BufferGeometry.prototype );
-SphereBufferGeometry.prototype.constructor = SphereBufferGeometry;
+SphereBufferblockGeometry.prototype = Object.create( BufferblockGeometry.prototype );
+SphereBufferblockGeometry.prototype.constructor = SphereBufferblockGeometry;
 
 
-export { SphereGeometry, SphereBufferGeometry };
+export { SphereblockGeometry, SphereBufferblockGeometry };
